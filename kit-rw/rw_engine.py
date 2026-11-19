@@ -712,6 +712,7 @@ def main():
         return
     voice, words = sys.argv[3], load_words(sys.argv[4]); out = sys.argv[5]
     dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", voice]).decode()) + 0.7
+    dur = max(dur, float(cfg.get("min_duration", 64.6)))  # programme de récompense TikTok : 64 s minimum
     v = Video(cfg, words, dur)
     if cmd == "stills":
         ts = list(np.linspace(0.8, dur - 1, 16))

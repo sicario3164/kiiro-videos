@@ -151,7 +151,6 @@ def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=Fals
         eyes(); d.line([hc[0] - 16 * S, my + 6 * S, hc[0] + 16 * S, my + 6 * S], fill=(40, 20, 20), width=int(5 * S))
     if mouth:  # bouche qui parle (synchronisée sur la voix)
         mcol = (40, 20, 20)
-        d.rectangle([hc[0] - 34 * S, my - 30 * S, hc[0] + 34 * S, my + 34 * S], fill=None)
         # efface la bouche dessinée par l'expression
         d.ellipse([hc[0] - 34 * S * k, my - 14 * S * k, hc[0] + 34 * S * k, my + 32 * S * k], fill=skin)
         rw_, rh_ = {"small": (14, 7), "mid": (18, 12), "wide": (21, 17), "o": (12, 15)}[mouth]

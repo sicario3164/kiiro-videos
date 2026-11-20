@@ -625,72 +625,27 @@ def build_audio(v, voice_mp3, path):
     with wave.open("_voice.wav") as w: vo = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
     n = int(v.dur * SR); out = np.zeros(n, np.float32); out[:min(n, len(vo))] += vo[:n]
     rng = np.random.RandomState(2); tt = np.arange(n) / SR
-    out += ((np.sin(2 * np.pi * 55 * tt) * .5 + np.sin(2 * np.pi * 82.4 * tt) * .3) * 0.03 * np.clip(tt / 1.5, 0, 1) * np.clip((v.dur - tt), 0, 1)).astype(np.float32)
+    out += ((np.sin(2 * np.pi * 55 * tt) * .5 + np.sin(2 * np.pi * 82.4 * tt) * .3) * 0.025 * np.clip(tt / 1.5, 0, 1) * np.clip((v.dur - tt), 0, 1)).astype(np.float32)
     def add(sig, t0, g=1.0):
         i = int(t0 * SR); j = min(n, i + len(sig))
         if 0 <= i < n: out[i:j] += sig[: j - i] * g
-    def lp(x, k): return np.convolve(x, np.ones(k) / k, mode="same")
-    def whoosh(d=0.45, g=0.55):
-        m = int(d * SR); x = lp(rng.randn(m), 18) - lp(rng.randn(m), 120)
-        env = np.sin(np.linspace(0, np.pi, m)) ** 1.5
-        return (x * env * g).astype(np.float32)
-    def popfx(f=420, g=0.32):
-        m = int(0.09 * SR); t_ = np.arange(m) / SR
-        return (np.sin(2 * np.pi * f * t_ * (1 + 2.5 * np.exp(-t_ * 60))) * np.exp(-t_ * 38) * g).astype(np.float32)
-    def swipe(g=0.35):
-        m = int(0.22 * SR); x = lp(rng.randn(m), 8); env = np.linspace(0, 1, m) ** 2 * np.exp(-np.linspace(0, 1, m) * 2)
-        return (x * env * g * 2).astype(np.float32)
-    def thud(g=0.8):
-        m = int(0.45 * SR); t_ = np.arange(m) / SR
-        return (np.sin(2 * np.pi * 58 * t_) * np.exp(-t_ * 9) * g + lp(rng.randn(m), 3) * np.exp(-t_ * 35) * 0.35).astype(np.float32)
-    def tick(g=0.09):
-        m = int(0.018 * SR); t_ = np.arange(m) / SR
-        return (np.sin(2 * np.pi * 1500 * t_) * np.exp(-t_ * 280) * g).astype(np.float32)
-    def key(g=0.16):
-        m = int(0.03 * SR); t_ = np.arange(m) / SR
-        return (lp(rng.randn(m), 2) * np.exp(-t_ * 180) * g + np.sin(2 * np.pi * 900 * t_) * np.exp(-t_ * 300) * g * 0.4).astype(np.float32)
-    def buzz(g=0.25):
-        m = int(0.5 * SR); t_ = np.arange(m) / SR
-        return (np.sin(2 * np.pi * 150 * t_) * (np.sin(2 * np.pi * 8 * t_) > 0) * np.clip(t_ * 20, 0, 1) * np.clip((0.5 - t_) * 10, 0, 1) * g).astype(np.float32)
-    def riser(d=0.6, g=0.3):
-        m = int(d * SR); t_ = np.arange(m) / SR
-        return (lp(rng.randn(m), 10) * (t_ / d) ** 2 * g + np.sin(2 * np.pi * (200 + 600 * t_ / d) * t_) * (t_ / d) ** 2 * g * 0.3).astype(np.float32)
-    def crackle(d=0.8, g=0.18):
-        m = int(d * SR); x = np.zeros(m, np.float32)
-        for _ in range(60):
-            i = rng.randint(0, m - 400); x[i:i + 300] += (rng.randn(300) * np.exp(-np.arange(300) / 40)).astype(np.float32)
-        return x * g * np.linspace(1, 0.2, m).astype(np.float32)
-    for sc in v.scenes[1:]: add(whoosh(), max(0, sc["t0"] - 0.2))
+    def whoosh(d=0.4):
+        m = int(d * SR); x = np.convolve(rng.randn(m), np.ones(40) / 40, mode="same")
+        return (x * np.sin(np.linspace(0, np.pi, m)) ** 2 * 0.22).astype(np.float32)
+    def thud():
+        m = int(0.4 * SR); t_ = np.arange(m) / SR
+        return (np.sin(2 * np.pi * 60 * t_) * np.exp(-t_ * 10) * 0.5 + rng.randn(m) * np.exp(-t_ * 40) * 0.15).astype(np.float32)
+    def tick():
+        m = int(0.02 * SR); t_ = np.arange(m) / SR
+        return (np.sin(2 * np.pi * 1800 * t_) * np.exp(-t_ * 260) * 0.035).astype(np.float32)
+    for sc in v.scenes[1:]: add(whoosh(), max(0, sc["t0"] - 0.15))
     for st in v.stamps: add(thud(), st)
     for sc in v.scenes:
         for e in sc["els"]:
-            ty, t0 = e["type"], e["_t"]
-            if ty in ("street", "office", "confetti"):
-                if ty == "confetti": add(crackle(), t0)
-                continue
-            if ty in ("pill", "valuecard", "bigvalue", "toggle", "infocard", "calc", "cta", "bubble", "gauge"):
-                add(popfx(380 + (int(t0 * 37) % 5) * 40), t0)
-            if ty in ("document", "letter", "phone", "split", "envelope"): add(swipe(), t0)
-            if ty == "phone": add(buzz(), t0 + 0.15)
-            if ty in ("bigvalue", "valuecard") and "count" in e:
-                for k in np.arange(0, 0.6, 0.05): add(tick(), t0 + k)
-            if ty == "calc" and "_result_at" in e:
-                add(riser(0.45), max(0, e["_result_at"] - 0.45))
-                for k in np.arange(0, 0.4, 0.05): add(tick(), e["_result_at"] + k)
-            if ty == "toggle" and "_value_at" in e: add(popfx(700, 0.25), e["_value_at"])
-            if ty == "infocard" and "_pill_at" in e: add(popfx(600, 0.28), e["_pill_at"])
-            if ty == "cta" and "_button_at" in e: add(popfx(520, 0.3), e["_button_at"])
-            if ty == "split" and "_right_at" in e: add(swipe(), e["_right_at"])
-            if ty == "envelope" and "_fly_at" in e: add(whoosh(0.4, 0.45), e["_fly_at"])
-            if ty == "gauge": add(riser(0.6, 0.25), t0)
-            if ty == "document":
-                for i, _ in enumerate(e.get("lines", [])[:5]):
-                    for k in np.arange(0, 0.35, 0.06): add(key(), t0 + 0.1 + i * 0.3 + k)
-            if ty == "letter":
-                L = e.get("lines", [])
-                for i, it in enumerate(L[:7]):
-                    lt = it.get("_t", t0 + i); nt = L[i + 1].get("_t", lt + 1.2) if i + 1 < len(L) else lt + 1.0
-                    for k in np.arange(0, max(0.3, (nt - lt) * 0.85), 0.075): add(key(0.12), lt + k)
+            if e["type"] in ("bigvalue", "valuecard") and "count" in e:
+                for k in np.arange(0, 0.6, 0.06): add(tick(), e["_t"] + k)
+            if e["type"] == "calc" and "_result_at" in e:
+                for k in np.arange(0, 0.4, 0.06): add(tick(), e["_result_at"] + k)
     out = np.clip(out / max(1.0, np.abs(out).max() / 0.95), -1, 1)
     with wave.open(path, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((out * 32767).astype(np.int16).tobytes())

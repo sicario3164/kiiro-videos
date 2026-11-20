@@ -7,9 +7,13 @@ Usage :
   python3 rw_engine.py stills scenes.json main.mp3 main_words.json planche.jpg
   python3 rw_engine.py render scenes.json main.mp3 main_words.json sortie.mp4
   python3 rw_engine.py thumb  scenes.json miniature.jpg
+  python3 rw_engine.py short  scenes.json main_words.json brut.mp4 miniature.jpg short.mp4   -> Short ≤ 59 s par coupes ("short_cut")
+  python3 rw_engine.py music  entree.mp4 sortie.mp4 [chill|tense|warm]                        -> ajoute la musique de fond générée
+Options scenes.json : "hook" {"text": "... *mots en jaune* ...", "tag": "DROIT CACHÉ N°12"}, "short_cut" [{"from", "to"}],
+                      "music" (true), "music_mood" (chill|tense|warm), "music_gain" (0.085)
 Tout est dessiné en code (fond, cartes, personnage, sous-titres, bruitages discrets).
 """
-import json, math, random, re, subprocess, sys, unicodedata, wave
+import json, math, os, random, re, subprocess, sys, unicodedata, wave
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
@@ -908,7 +912,7 @@ class Video:
                 paste(fr, self.POSE.get(pose, self.POSE["idle"]), x1 + dx, y1 + math.sin(t * 3.2) * 6 + dy, s, a)
         if cur_scene:
             k = clamp((t - cur_scene["t0"]) / max(0.5, cur_scene["t1"] - cur_scene["t0"]))
-            z = 1.0 + 0.045 * ease_in_out(k)
+            z = (1.0 + 0.045 * ease_in_out(k)) * hook_punch(t, self.cfg)
             if z > 1.002:
                 cw, chh = int(W / z), int(H / z)
                 ox, oy = (W - cw) // 2, int((H - chh) * 0.42)
@@ -918,6 +922,7 @@ class Video:
             if t >= tc: cur = (tc, im)
         if cur:
             s, a = pop(t, cur[0], 0.18); paste(fr, cur[1], 540, 1580, 0.85 + 0.15 * s, a)
+        hook_overlay(fr, self.cfg, t, 700)
         return fr.convert("RGB")
 
 # ---------- audio : voix + bruitages discrets (pas de ding) ----------
@@ -927,7 +932,9 @@ def build_audio(v, voice_mp3, path):
     with wave.open("_voice.wav") as w: vo = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
     n = int(v.dur * SR); out = np.zeros(n, np.float32); out[:min(n, len(vo))] += vo[:n]
     rng = np.random.RandomState(2); tt = np.arange(n) / SR
-    out += ((np.sin(2 * np.pi * 55 * tt) * .5 + np.sin(2 * np.pi * 82.4 * tt) * .3) * 0.025 * np.clip(tt / 1.5, 0, 1) * np.clip((v.dur - tt), 0, 1)).astype(np.float32)
+    if v.cfg.get("music", True):
+        vo_full = np.zeros(n, np.float32); vo_full[:min(n, len(vo))] = vo[:n]
+        out += music_track(n, SR, duck=vo_full, mood=v.cfg.get("music_mood", "chill")) * float(v.cfg.get("music_gain", 0.085))
     def add(sig, t0, g=1.0):
         i = int(t0 * SR); j = min(n, i + len(sig))
         if 0 <= i < n: out[i:j] += sig[: j - i] * g
@@ -942,6 +949,7 @@ def build_audio(v, voice_mp3, path):
         return (np.sin(2 * np.pi * 1800 * t_) * np.exp(-t_ * 260) * 0.035).astype(np.float32)
     for sc in v.scenes[1:]: add(whoosh(), max(0, sc["t0"] - 0.15))
     for st in v.stamps: add(thud(), st)
+    if v.cfg.get("hook"): add(boom_sfx(SR), HOOK_T0, 0.5)
     for sc in v.scenes:
         for e in sc["els"]:
             if e["type"] in ("bigvalue", "valuecard") and "count" in e:
@@ -951,6 +959,140 @@ def build_audio(v, voice_mp3, path):
     out = np.clip(out / max(1.0, np.abs(out).max() / 0.95), -1, 1)
     with wave.open(path, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((out * 32767).astype(np.int16).tobytes())
+
+# ---------- extras : accroche choc, musique de fond générée, version Short coupée, musique pour toute vidéo ----------
+def music_track(n, sr, duck=None, mood="chill", seed=7):
+    """Petite boucle lo-fi originale générée en code (aucun droit d'auteur) : pad d'accords, basse, kick doux, charleston, notes de piano.
+    duck = signal de voix (même longueur) pour baisser la musique quand ça parle."""
+    from scipy.signal import butter, lfilter
+    rng = np.random.RandomState(seed)
+    bpm = {"chill": 86, "tense": 96, "warm": 80}.get(mood, 86); beat = 60.0 / bpm; bar = beat * 4
+    prog = {"chill": [(57, 60, 64), (53, 57, 60), (48, 52, 55), (55, 59, 62)],     # Am F C G
+            "tense": [(57, 60, 64), (57, 60, 64), (53, 57, 60), (52, 56, 59)],     # Am Am F E
+            "warm":  [(48, 52, 55), (57, 60, 64), (53, 57, 60), (55, 59, 62)]}.get(mood)  # C Am F G
+    def hz(m): return 440.0 * 2 ** ((m - 69) / 12)
+    t = np.arange(n) / sr; out = np.zeros(n, np.float32)
+    nb = int(n / sr / bar) + 2
+    for b in range(nb):
+        ch = prog[b % 4]; t0 = b * bar; i0 = int(t0 * sr); i1 = min(n, int((t0 + bar + 0.3) * sr))
+        if i0 >= n: break
+        tt = t[i0:i1] - t0
+        env = np.clip(tt / 0.35, 0, 1) * np.clip((bar + 0.3 - tt) / 0.6, 0, 1)
+        pad = np.zeros_like(tt)
+        for m in ch:
+            f = hz(m)
+            pad += np.sin(2 * np.pi * f * tt + 0.3 * np.sin(2 * np.pi * 0.4 * tt)) * 0.30 + np.sin(2 * np.pi * 2 * f * tt) * 0.06
+        bass = np.sin(2 * np.pi * hz(ch[0] - 12) * tt) * 0.55 * np.clip(tt / 0.05, 0, 1) * np.exp(-tt * 0.6)
+        out[i0:i1] += (pad * env * 0.22 + bass * 0.5).astype(np.float32)
+        for k in range(8):  # notes de piano douces, motif sur les croches
+            if rng.rand() < 0.45: continue
+            ts_ = t0 + k * beat / 2; j0 = int(ts_ * sr); j1 = min(n, j0 + int(0.9 * sr))
+            if j0 >= n: break
+            m = ch[rng.randint(0, 3)] + 12 * rng.randint(0, 2); u = t[j0:j1] - ts_
+            out[j0:j1] += (np.sin(2 * np.pi * hz(m) * u) * np.exp(-u * 4.5) * 0.16 * (0.6 + 0.4 * rng.rand())).astype(np.float32)
+        for k in range(4):  # batterie discrète
+            ts_ = t0 + k * beat; j0 = int(ts_ * sr)
+            if j0 >= n: break
+            if k in (0, 2):
+                j1 = min(n, j0 + int(0.35 * sr)); u = t[j0:j1] - ts_
+                out[j0:j1] += (np.sin(2 * np.pi * (45 + 70 * np.exp(-u * 30)) * u) * np.exp(-u * 9) * 0.55).astype(np.float32)
+            else:
+                j1 = min(n, j0 + int(0.18 * sr)); u = t[j0:j1] - ts_
+                out[j0:j1] += (rng.randn(j1 - j0) * np.exp(-u * 28) * 0.10).astype(np.float32)
+            for hh in (0.0, 0.5):
+                h0 = int((ts_ + hh * beat) * sr); h1 = min(n, h0 + int(0.05 * sr))
+                if h0 < n:
+                    x = np.diff(rng.randn(h1 - h0 + 1)); out[h0:h1] += (x * np.exp(-np.arange(h1 - h0) / sr * 90) * 0.035).astype(np.float32)
+    b_, a_ = butter(2, 5200 / (sr / 2)); out = lfilter(b_, a_, out).astype(np.float32)   # son chaud, un peu « lo-fi »
+    out += (rng.randn(n) * 0.004).astype(np.float32)                                         # léger souffle vinyle
+    out /= (np.abs(out).max() + 1e-6)
+    fade = np.clip(t / 1.2, 0, 1) * np.clip((n / sr - t) / 1.5, 0, 1)
+    out *= fade.astype(np.float32)
+    if duck is not None:
+        e = np.abs(duck); k = int(0.12 * sr); e = np.convolve(e, np.ones(k) / k, mode="same")
+        out *= (1 - 0.55 * np.clip(e / 0.06, 0, 1)).astype(np.float32)
+    return out
+
+def boom_sfx(sr):
+    m = int(0.9 * sr); u = np.arange(m) / sr; rng = np.random.RandomState(5)
+    return (np.sin(2 * np.pi * (38 + 90 * np.exp(-u * 18)) * u) * np.exp(-u * 4) * 0.8 + rng.randn(m) * np.exp(-u * 25) * 0.25).astype(np.float32)
+
+HOOK_T0, HOOK_T1 = 0.1, 2.0
+def hook_overlay(fr, cfg, t, cy=760):
+    """Accroche choc des 2 premières secondes : texte énorme qui claque, *mots* surlignés en jaune, étiquette de série au-dessus."""
+    hk = cfg.get("hook")
+    if not hk or not (HOOK_T0 <= t < HOOK_T1): return
+    key = ("hook", json.dumps(hk, ensure_ascii=False))
+    if key not in _HOOK_CACHE:
+        txt = hk.get("text", ""); f = font(F_BLACK, 112); words = txt.split()
+        lines, cur = [], []
+        for w_ in words:
+            test = " ".join(cur + [w_]).replace("*", "")
+            if cur and f.getlength(test) > 960: lines.append(cur); cur = [w_]
+            else: cur.append(w_)
+        if cur: lines.append(cur)
+        lh = 128; im = Image.new("RGBA", (W, lh * len(lines) + 40), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        hl = False
+        for li, ln in enumerate(lines):
+            full = " ".join(ln).replace("*", ""); x = (W - f.getlength(full)) / 2; y = 10 + li * lh
+            for w_ in ln:
+                st_ = w_.startswith("*"); en_ = w_.endswith("*"); clean = w_.strip("*")
+                if st_: hl = True
+                col_ = (255, 214, 64) if hl else (255, 255, 255)
+                d.text((x, y), clean, font=f, fill=col_, stroke_width=10, stroke_fill=(10, 12, 22))
+                x += f.getlength(clean + " ")
+                if en_: hl = False
+        bb = im.getbbox() or (0, 0, W, im.height)
+        panel = Image.new("RGBA", (bb[2] - bb[0] + 80, bb[3] - bb[1] + 70), (0, 0, 0, 0))
+        ImageDraw.Draw(panel).rounded_rectangle([0, 0, panel.width - 1, panel.height - 1], 40, fill=(8, 10, 24, 205))
+        panel.alpha_composite(im.crop(bb), (40, 35)); im = panel
+        tag = hk.get("tag")
+        tag_img = pill(tag, RED, size=40) if tag else None
+        _HOOK_CACHE[key] = (im, tag_img)
+    im, tag_img = _HOOK_CACHE[key]
+    k = clamp((t - HOOK_T0) / 0.18); s = 1.0 + 0.6 * (1 - ease_out(k)); a = clamp(k * 3) * clamp((HOOK_T1 - t) / 0.25)
+    dx = int(math.sin(t * 80) * 10 * (1 - k)); dy = int(math.cos(t * 60) * 8 * (1 - k))
+    if tag_img is not None: paste(fr, tag_img, 540 + dx, cy - im.height / 2 - 34 + dy, 1.0 + 0.3 * (1 - ease_out(k)), a)
+    paste(fr, im, 540 + dx, cy + dy, s, a)
+_HOOK_CACHE = {}
+
+def hook_punch(t, cfg):
+    """Zoom-coup de poing au tout début (1.12 → 1.0)."""
+    if not cfg.get("hook"): return 1.0
+    return 1.0 + 0.12 * (1 - ease_out(clamp((t - HOOK_T0) / 0.5)))
+
+def _dur(path):
+    return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path]).decode())
+
+def make_short(cfg, words, brut, thumb, out, target=58.5):
+    """Version YouTube Shorts : coupe les passages listés dans "short_cut" [{"from": <mots>, "to": <mots>}]
+    (on retire de « from » jusqu'au début de « to »), puis n'accélère que s'il le faut encore (et le moins possible)."""
+    cuts = []
+    for c in cfg.get("short_cut", []):
+        a, ia = resolve(c["from"], words, 0); b, _ = resolve(c["to"], words, ia)
+        if b > a: cuts.append((max(0, a - 0.06), b - 0.06))
+    dur = _dur(brut); kept = dur - sum(b - a for a, b in cuts)
+    F = max(1.0, kept / target)
+    sel = "+".join(f"between(t,{a:.3f},{b:.3f})" for a, b in cuts) or "0"
+    vf = f"[0:v]select='not({sel})',setpts=N/FRAME_RATE/TB,setpts=PTS/{F:.5f}[s];[1:v]scale=1080:1920,format=yuv420p[c];[s][c]overlay=0:0:enable='lt(t,0.1)'[v];" \
+         f"[0:a]aselect='not({sel})',asetpts=N/SR/TB,atempo={F:.5f}[a]"
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", brut, "-i", thumb, "-filter_complex", vf, "-map", "[v]", "-map", "[a]", "-r", "30",
+                    "-c:v", "libx264", "-crf", "21", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out], check=True)
+    print(f"OK {out} : {len(cuts)} coupe(s), {dur - kept:.1f} s retirées, accélération x{F:.3f}, durée {_dur(out):.1f} s")
+    if F > 1.08: print("ATTENTION : accélération > 8 % — ajoute ou allonge une coupe dans short_cut")
+
+def add_music(inp, out, mood="chill", gain=0.09):
+    """Ajoute la musique de fond générée (baissée sous la voix) à n'importe quelle vidéo, ex. Psychologie du complot."""
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", inp, "-ac", "1", "-ar", str(SR), "_in.wav"], check=True)
+    with wave.open("_in.wav") as w: a = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
+    m = music_track(len(a), SR, duck=a, mood=mood) * gain
+    mix = np.clip(a + m, -1, 1)
+    with wave.open("_mus.wav", "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mix * 32767).astype(np.int16).tobytes())
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", inp, "-i", "_mus.wav", "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                    "-movflags", "+faststart", out], check=True)
+    for f_ in ("_in.wav", "_mus.wav"): os.path.exists(f_) and os.remove(f_)
+    print("OK", out)
 
 # ---------- miniature (style habituel : gros titre, bandeau rouge, 2 fiches ✅/❌) ----------
 def emoji_img(ch, size):
@@ -1012,8 +1154,12 @@ def main():
     if cmd == "words":
         for i, w in enumerate(load_words(sys.argv[2])): print(f"{i:3d} {w['start']:6.2f} {w['text']}")
         return
+    if cmd == "music":  # python3 rw_engine.py music entree.mp4 sortie.mp4 [chill|tense|warm]
+        add_music(sys.argv[2], sys.argv[3], sys.argv[4] if len(sys.argv) > 4 else "chill"); return
     cfg = json.load(open(sys.argv[2]))
     if cmd == "thumb": make_thumb(cfg, sys.argv[3]); print("OK", sys.argv[3]); return
+    if cmd == "short":  # python3 rw_engine.py short scenes.json main_words.json brut.mp4 miniature.jpg sortie_short.mp4
+        make_short(cfg, load_words(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]); return
     if cmd == "check":
         words = load_words(sys.argv[3]); dur = words[-1]["end"] + 0.7
         v = Video(cfg, words, dur)

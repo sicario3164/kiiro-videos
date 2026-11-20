@@ -10,6 +10,8 @@ Usage :
   python3 ecole_engine.py stills scenes.json main.mp3 main_words.json planche.jpg
   python3 ecole_engine.py render scenes.json main.mp3 main_words.json sortie.mp4
   python3 ecole_engine.py thumb  scenes.json miniature.jpg
+  python3 ecole_engine.py short  scenes.json main_words.json brut.mp4 miniature.jpg short.mp4  (Short ≤ 59 s par coupes "short_cut")
+Options : "hook" {"text", "tag"}, "short_cut" [{"from", "to"}], "music" (true), "music_mood" (warm|chill|tense), "music_gain"
   python3 ecole_engine.py demo   scenes.json sortie.mp4 "texte du script"   (sans voix : minutage estimé)
 Nécessite rw_engine.py dans le même dossier.
 """
@@ -19,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rw_engine as R
 from rw_engine import (font, F_BLACK, F_XB, F_SB, clamp, ease_out, ease_in_out, back, pop, paste, text_img, resolve, load_words,
-                       norm, number_span, fmt_num, emoji_img)
+                       norm, number_span, fmt_num, emoji_img, music_track, boom_sfx, hook_overlay, hook_punch, make_short, HOOK_T0)
 
 W, H, FPS = 1080, 1920, 30
 F_BI = "/usr/share/fonts/opentype/inter/Inter-BlackItalic.otf"
@@ -450,7 +452,7 @@ class Video:
     def render(self, t):
         sc = next((s for s in self.scenes if s["t0"] <= t < s["t1"]), self.scenes[-1])
         st = sc["style"]
-        k = clamp((t - sc["t0"]) / max(0.5, sc["t1"] - sc["t0"])); z = 1.0 + 0.05 * ease_in_out(k)
+        k = clamp((t - sc["t0"]) / max(0.5, sc["t1"] - sc["t0"])); z = (1.0 + 0.05 * ease_in_out(k)) * hook_punch(t, self.cfg)
         if st == "papier":
             area = self.cached(("bgp", sc["bg"]), lambda: bg_papier(sc["bg"])).copy(); ah = BOT - TOP; ybase = 0
         else:
@@ -526,6 +528,7 @@ class Video:
             im = self.caption(cur[1], st); s_, a_ = pop(t, cur[0], 0.12)
             sc_ = min(1.0, 980 / im.width)
             paste(fr, im, 540, cy, sc_ * (0.9 + 0.1 * s_), a_)
+        hook_overlay(fr, self.cfg, t, 640 if st == "papier" else 700)
         return fr.convert("RGB")
 
     def banner_img(self, parts):
@@ -545,7 +548,9 @@ def build_audio(v, voice, path):
         with wave.open("_voice.wav") as w: vo = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
         out[:min(n, len(vo))] += vo[:n]
     rng = np.random.RandomState(2); tt = np.arange(n) / SR
-    out += ((np.sin(2 * np.pi * 55 * tt) * .5 + np.sin(2 * np.pi * 82.4 * tt) * .3) * 0.025 * np.clip(tt / 1.5, 0, 1) * np.clip(v.dur - tt, 0, 1)).astype(np.float32)
+    if v.cfg.get("music", True):
+        vo_full = out.copy()
+        out += music_track(n, SR, duck=vo_full, mood=v.cfg.get("music_mood", "warm"), seed=11) * float(v.cfg.get("music_gain", 0.085))
     def add(sig, t0, g=1.0):
         i = int(t0 * SR); j = min(n, i + len(sig))
         if 0 <= i < n: out[i:j] += sig[: j - i] * g
@@ -557,6 +562,7 @@ def build_audio(v, voice, path):
         return (np.sin(2 * np.pi * 60 * t_) * np.exp(-t_ * 10) * 0.5 + rng.randn(m) * np.exp(-t_ * 40) * 0.15).astype(np.float32)
     for s in v.scenes[1:]: add(whoosh(), max(0, s["t0"] - 0.15))
     for st in v.stamps: add(thud(), st)
+    if v.cfg.get("hook"): add(boom_sfx(SR), HOOK_T0, 0.5)
     out = np.clip(out / max(1.0, np.abs(out).max() / 0.95), -1, 1)
     with wave.open(path, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((out * 32767).astype(np.int16).tobytes())
@@ -614,6 +620,8 @@ def main():
         return
     cfg = json.load(open(sys.argv[2]))
     if cmd == "thumb": make_thumb(cfg, sys.argv[3]); print("OK", sys.argv[3]); return
+    if cmd == "short":  # python3 ecole_engine.py short scenes.json main_words.json brut.mp4 miniature.jpg sortie_short.mp4
+        make_short(cfg, load_words(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]); return
     if cmd == "demo":
         words = fake_words(sys.argv[4]); dur = max(words[-1]["end"] + 0.7, float(cfg.get("min_duration", 0)))
         run(cfg, words, None, sys.argv[3], dur); return

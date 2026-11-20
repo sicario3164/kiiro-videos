@@ -197,6 +197,293 @@ def character(pose, fem=False):
     if fem: dd.rounded_rectangle([cx - 42 * S, 200 * S, cx + 42 * S, 222 * S], 10 * S, fill=(232, 92, 120))
     return img.resize((w // S, h // S), Image.LANCZOS)
 
+# ---------- personnage animé (pièces séparées + bouche synchronisée sur la voix) ----------
+def char_parts(fem=False):
+    S = 3; w, h = 400 * S, 520 * S; cx = w // 2
+    def new(): return Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    def down(im): return im.resize((400, 520), Image.LANCZOS)
+    hair = (58, 34, 26) if fem else (34, 26, 24)
+    P = {}
+    im = new(); sh = new()
+    ImageDraw.Draw(sh).ellipse([cx - 95 * S, 492 * S, cx + 95 * S, 515 * S], fill=(0, 0, 0, 120))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(6 * S)))
+    im.alpha_composite(_shaped((w, h), lambda d: (d.rounded_rectangle([cx - 52 * S, 360 * S, cx - 8 * S, 495 * S], 18 * S, fill=255),
+                                                  d.rounded_rectangle([cx + 8 * S, 360 * S, cx + 52 * S, 495 * S], 18 * S, fill=255)),
+                               (55, 66, 98), (24, 28, 44), 0.35, 0.75))
+    im.alpha_composite(_shaped((w, h), lambda d: (d.rounded_rectangle([cx - 62 * S, 478 * S, cx - 2 * S, 505 * S], 12 * S, fill=255),
+                                                  d.rounded_rectangle([cx + 2 * S, 478 * S, cx + 62 * S, 505 * S], 12 * S, fill=255)),
+                               (250, 250, 250), (170, 175, 190), 0.4, 0.92))
+    P["legs"] = down(im)
+    im = new()
+    if fem:
+        d0 = ImageDraw.Draw(im)
+        d0.rounded_rectangle([cx - 86 * S, 70 * S, cx - 56 * S, 250 * S], 14 * S, fill=hair)
+        d0.rounded_rectangle([cx + 56 * S, 70 * S, cx + 86 * S, 250 * S], 14 * S, fill=hair)
+    P["hair_back"] = down(im)
+    im = new()
+    im.alpha_composite(_shaped((w, h), lambda d: d.rounded_rectangle([cx - 95 * S, 205 * S, cx + 95 * S, 380 * S], 48 * S, fill=255),
+                               (64, 68, 88), (20, 22, 32), 0.35, 0.3))
+    dd = ImageDraw.Draw(im)
+    dd.line([cx, 215 * S, cx, 375 * S], fill=(12, 14, 22), width=3 * S)
+    dd.rounded_rectangle([cx - 60 * S, 315 * S, cx + 60 * S, 360 * S], 14 * S, outline=(14, 16, 24), width=3 * S)
+    dd.text((cx - 55 * S, 240 * S), "01", font=font(F_MONO, 26 * S), fill=(70, 230, 140))
+    P["torso"] = down(im)
+    def arm(d, p0, p1, p2):
+        d.line([p0, p1, p2], fill=255, width=34 * S, joint="curve")
+        for p in (p0, p1, p2): d.ellipse([p[0] - 17 * S, p[1] - 17 * S, p[0] + 17 * S, p[1] + 17 * S], fill=255)
+    L0, R0 = (cx - 78 * S, 230 * S), (cx + 78 * S, 230 * S)
+    def pt(x, y): return (cx + x * S, y * S)
+    ARMS = {"L": {"down": (L0, pt(-100, 300), pt(-92, 365)), "up": (L0, pt(-135, 175), pt(-110, 95)),
+                  "explain": (L0, pt(-112, 300), pt(-52, 282)), "open": (L0, pt(-118, 285), pt(-160, 318))},
+            "R": {"down": (R0, pt(100, 300), pt(92, 365)), "point": (R0, pt(140, 170), pt(175, 105)), "up": (R0, pt(135, 175), pt(110, 95)),
+                  "think": (R0, pt(70, 300), pt(30, 190)), "explain": (R0, pt(112, 300), pt(52, 282)), "open": (R0, pt(118, 285), pt(160, 318))}}
+    for side, defs in ARMS.items():
+        for k, a in defs.items():
+            im = new()
+            im.alpha_composite(_shaped((w, h), lambda d, a=a: arm(d, *a), (70, 74, 92), (22, 24, 34), 0.5, 0.3))
+            dd = ImageDraw.Draw(im); p = a[2]
+            dd.ellipse([p[0] - 19 * S, p[1] - 19 * S, p[0] + 19 * S, p[1] + 19 * S], fill=(233, 178, 140))
+            dd.ellipse([p[0] - 12 * S, p[1] - 14 * S, p[0] + 2 * S, p[1] - 2 * S], fill=(248, 205, 172))
+            P[f"{side}_{k}"] = down(im)
+    im = new()
+    if fem: ImageDraw.Draw(im).rounded_rectangle([cx - 42 * S, 200 * S, cx + 42 * S, 222 * S], 10 * S, fill=(232, 92, 120))
+    P["scarf"] = down(im)
+    im = new(); dd = ImageDraw.Draw(im)
+    if not fem: dd.ellipse([cx - 92 * S, 60 * S, cx + 92 * S, 235 * S], fill=(30, 33, 46))
+    im.alpha_composite(_shaped((w, h), lambda d: d.ellipse([cx - 72 * S, 52 * S, cx + 72 * S, 212 * S], fill=255),
+                               (252, 208, 176), (196, 136, 104), 0.4, 0.3))
+    dd = ImageDraw.Draw(im)
+    dd.chord([cx - 76 * S, 40 * S, cx + 76 * S, 170 * S], 180, 360, fill=hair)
+    dd.ellipse([cx - 40 * S, 34 * S, cx + 30 * S, 80 * S], fill=(74, 44, 34) if fem else (46, 36, 32))
+    if not fem:
+        for sx in (-1, 1): dd.ellipse([cx + sx * 74 * S - 12 * S, 120 * S, cx + sx * 74 * S + 12 * S, 152 * S], fill=(222, 160, 126))
+    for sx in (-1, 1):
+        ex = cx + sx * 32 * S
+        dd.ellipse([ex - 28 * S, 112 * S, ex + 28 * S, 150 * S], fill=(10, 12, 18))
+        dd.ellipse([ex - 18 * S, 118 * S, ex - 4 * S, 128 * S], fill=(90, 220, 150, 200))
+    dd.line([cx - 6 * S, 126 * S, cx + 6 * S, 126 * S], fill=(10, 12, 18), width=5 * S)
+    P["head"] = down(im)
+    im = new(); dd = ImageDraw.Draw(im)
+    for sx in (-1, 1):
+        ex = cx + sx * 32 * S
+        dd.rounded_rectangle([ex - 22 * S, 98 * S, ex + 22 * S, 107 * S], 4 * S, fill=hair)
+    P["brows"] = down(im)
+    MC = (cx, 178 * S)
+    def mouth(kind):
+        im = new(); dd = ImageDraw.Draw(im); x, y = MC
+        if kind == "smile": dd.arc([cx - 24 * S, 150 * S, cx + 24 * S, 190 * S], 20, 160, fill=(110, 50, 50), width=5 * S)
+        elif kind == "line": dd.line([cx - 14 * S, 182 * S, cx + 16 * S, 176 * S], fill=(110, 50, 50), width=5 * S)
+        else:
+            rw, rh = {"small": (13, 6), "mid": (17, 11), "wide": (20, 15), "o": (11, 13)}[kind]
+            dd.ellipse([x - rw * S, y - rh * S, x + rw * S, y + rh * S], fill=(90, 30, 40))
+            if kind in ("mid", "wide"):
+                dd.ellipse([x - rw * 0.6 * S, y + rh * 0.15 * S, x + rw * 0.6 * S, y + rh * 0.95 * S], fill=(220, 90, 100))
+                dd.rectangle([x - rw * 0.7 * S, y - rh * S + 2 * S, x + rw * 0.7 * S, y - rh * 0.55 * S], fill=(245, 240, 235))
+        return down(im)
+    for k in ("smile", "line", "small", "mid", "wide", "o"): P["m_" + k] = mouth(k)
+    return P
+
+AVATARS = {
+    "papi": dict(skin=(245, 205, 175), top=(205, 180, 140), outfit="cardigan", hair="bald", hair_col=(205, 205, 210), brow=(190, 190, 195),
+                 iris=(90, 120, 150), glasses=True, mustache=(215, 215, 220), pants=(80, 70, 60), shoes=(90, 60, 40), raise_max=9),
+    "nora": dict(skin=(200, 145, 105), top=(225, 170, 40), outfit="sweat", hair="ponytail", hair_col=(35, 22, 16), brow=(30, 20, 15),
+                 iris=(80, 50, 25), earrings=True, blush=True, pants=(60, 70, 110), shoes=(250, 250, 250), raise_max=5),
+}
+
+def avatar_parts(name):
+    """Avatars à yeux visibles (clignements, sourcils) : « nora » (Tes Droits Cachés), « papi »."""
+    sp = AVATARS[name]
+    S = 3; w, h = 400 * S, 520 * S; cx = w // 2
+    def new(): return Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    def down(im): return im.resize((400, 520), Image.LANCZOS)
+    def B(x0, y0, x1, y1): return [cx + x0 * S, y0 * S, cx + x1 * S, y1 * S]
+    def Q(x, y): return (cx + x * S, y * S)
+    def shade(c, k): return tuple(max(0, min(255, int(v * k))) for v in c)
+    skin, top, hair = sp["skin"], sp["top"], sp["hair_col"]
+    P = {"kind": name, "raise_max": sp.get("raise_max", 8)}
+    im = new(); sh = new(); ImageDraw.Draw(sh).ellipse(B(-95, 492, 95, 515), fill=(0, 0, 0, 120))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(6 * S)))
+    pants, shoes = sp["pants"], sp["shoes"]
+    im.alpha_composite(_shaped((w, h), lambda d: (d.rounded_rectangle(B(-52, 360, -8, 495), 18 * S, fill=255), d.rounded_rectangle(B(8, 360, 52, 495), 18 * S, fill=255)), pants, shade(pants, 0.45), 0.35, 0.75))
+    im.alpha_composite(_shaped((w, h), lambda d: (d.rounded_rectangle(B(-62, 478, -2, 505), 12 * S, fill=255), d.rounded_rectangle(B(2, 478, 62, 505), 12 * S, fill=255)), shoes, shade(shoes, 0.7), 0.4, 0.92))
+    P["legs"] = down(im)
+    im = new()
+    if sp.get("hair") == "ponytail": ImageDraw.Draw(im).ellipse(B(58, 70, 118, 250), fill=hair)
+    P["hair_back"] = down(im); P["scarf"] = down(new())
+    im = new()
+    im.alpha_composite(_shaped((w, h), lambda d: d.rounded_rectangle(B(-95, 205, 95, 380), 48 * S, fill=255), top, shade(top, 0.45), 0.35, 0.3))
+    d = ImageDraw.Draw(im)
+    if sp.get("outfit") == "cardigan":
+        d.polygon([Q(-22, 208), Q(22, 208), Q(0, 240)], fill=(235, 240, 250))
+        d.line([Q(0, 240), Q(0, 378)], fill=shade(top, 0.6), width=4 * S)
+        for yy in (265, 295, 325, 355): d.ellipse(B(-6, yy - 6, 6, yy + 6), fill=(120, 80, 50))
+    else:
+        d.chord(B(-34, 190, 34, 236), 0, 180, fill=shade(top, 0.75))
+        d.rounded_rectangle(B(-95, 360, 95, 380), 10 * S, fill=shade(top, 0.8))
+    P["torso"] = down(im)
+    def arm(dd, p0, p1, p2):
+        dd.line([p0, p1, p2], fill=255, width=34 * S, joint="curve")
+        for p in (p0, p1, p2): dd.ellipse([p[0] - 17 * S, p[1] - 17 * S, p[0] + 17 * S, p[1] + 17 * S], fill=255)
+    L0, R0 = Q(-78, 230), Q(78, 230)
+    ARMS = {"L": {"down": (L0, Q(-100, 300), Q(-92, 365)), "up": (L0, Q(-135, 175), Q(-110, 95)),
+                  "explain": (L0, Q(-112, 300), Q(-52, 282)), "open": (L0, Q(-118, 285), Q(-160, 318))},
+            "R": {"down": (R0, Q(100, 300), Q(92, 365)), "point": (R0, Q(140, 170), Q(175, 105)), "up": (R0, Q(135, 175), Q(110, 95)),
+                  "think": (R0, Q(70, 300), Q(30, 190)), "explain": (R0, Q(112, 300), Q(52, 282)), "open": (R0, Q(118, 285), Q(160, 318))}}
+    for side, defs in ARMS.items():
+        for k, a in defs.items():
+            im = new()
+            im.alpha_composite(_shaped((w, h), lambda dd, a=a: arm(dd, *a), shade(top, 1.05), shade(top, 0.45), 0.5, 0.3))
+            d = ImageDraw.Draw(im); p = a[2]
+            d.ellipse([p[0] - 19 * S, p[1] - 19 * S, p[0] + 19 * S, p[1] + 19 * S], fill=skin)
+            d.ellipse([p[0] - 12 * S, p[1] - 14 * S, p[0] + 2 * S, p[1] - 2 * S], fill=shade(skin, 1.06))
+            P[f"{side}_{k}"] = down(im)
+    im = new(); d = ImageDraw.Draw(im)
+    for sx in (-1, 1): d.ellipse(B(sx * 74 - 12, 120, sx * 74 + 12, 152), fill=shade(skin, 0.9))
+    im.alpha_composite(_shaped((w, h), lambda dd: dd.ellipse(B(-72, 52, 72, 212), fill=255), shade(skin, 1.04), shade(skin, 0.8), 0.4, 0.3))
+    d = ImageDraw.Draw(im)
+    if sp.get("hair") == "bald":
+        d.ellipse(B(-34, 62, 14, 84), fill=shade(skin, 1.1))
+        for sx in (-1, 1): d.ellipse(B(sx * 70 - 18, 90, sx * 70 + 18, 150), fill=hair)
+    else:
+        d.chord(B(-76, 40, 76, 160), 180, 360, fill=hair)
+    if sp.get("earrings"):
+        for sx in (-1, 1): d.ellipse(B(sx * 76 - 9, 150, sx * 76 + 9, 172), outline=(235, 190, 60), width=4 * S)
+    if sp.get("blush"):
+        for sx in (-1, 1): d.ellipse(B(sx * 48 - 12, 155, sx * 48 + 12, 168), fill=(236, 140, 130))
+    P["head"] = down(im)
+    im = new(); d = ImageDraw.Draw(im)
+    for sx in (-1, 1):
+        ex = sx * 30
+        d.ellipse(B(ex - 15, 116, ex + 15, 142), fill=(255, 255, 255))
+        d.ellipse(B(ex - 9, 120, ex + 9, 140), fill=sp["iris"]); d.ellipse(B(ex - 5, 124, ex + 5, 136), fill=(12, 12, 16))
+        d.ellipse(B(ex + 1, 123, ex + 5, 128), fill=(255, 255, 255))
+    P["eyes_open"] = down(im)
+    im = new(); d = ImageDraw.Draw(im)
+    for sx in (-1, 1):
+        ex = sx * 30
+        d.ellipse(B(ex - 16, 114, ex + 16, 144), fill=shade(skin, 0.95)); d.arc(B(ex - 14, 118, ex + 14, 140), 20, 160, fill=(70, 50, 40), width=4 * S)
+    P["eyes_closed"] = down(im)
+    im = new(); d = ImageDraw.Draw(im)
+    for sx in (-1, 1): d.rounded_rectangle(B(sx * 30 - 17, 100, sx * 30 + 15, 107), 4 * S, fill=sp["brow"])
+    P["brows"] = down(im)
+    im = new()
+    if sp.get("glasses"):
+        d = ImageDraw.Draw(im)
+        for sx in (-1, 1): d.ellipse(B(sx * 30 - 22, 108, sx * 30 + 22, 150), outline=(30, 30, 36), width=4 * S)
+        d.line([Q(-8, 126), Q(8, 126)], fill=(30, 30, 36), width=4 * S)
+    P["glasses"] = down(im)
+    if sp.get("mustache"):
+        im = new(); ImageDraw.Draw(im).chord(B(-32, 148, 32, 182), 180, 360, fill=sp["mustache"]); P["mustache"] = down(im)
+    my = 182 if sp.get("mustache") else 178
+    def mouth(kind):
+        im = new(); dd = ImageDraw.Draw(im); x, y = cx, my * S
+        if kind == "smile": dd.arc([cx - 22 * S, (my - 22) * S, cx + 22 * S, (my + 12) * S], 20, 160, fill=(110, 50, 50), width=5 * S)
+        elif kind == "line": dd.line([cx - 14 * S, (my + 4) * S, cx + 16 * S, my * S], fill=(110, 50, 50), width=5 * S)
+        else:
+            rw, rh = {"small": (13, 6), "mid": (17, 10), "wide": (19, 14), "o": (11, 12)}[kind]
+            dd.ellipse([x - rw * S, y - rh * S, x + rw * S, y + rh * S], fill=(90, 30, 40))
+            if kind in ("mid", "wide"):
+                dd.ellipse([x - rw * 0.6 * S, y + rh * 0.15 * S, x + rw * 0.6 * S, y + rh * 0.95 * S], fill=(220, 90, 100))
+                if not sp.get("mustache"): dd.rectangle([x - rw * 0.7 * S, y - rh * S + 2 * S, x + rw * 0.7 * S, y - rh * 0.55 * S], fill=(245, 240, 235))
+        return down(im)
+    for k in ("smile", "line", "small", "mid", "wide", "o"): P["m_" + k] = mouth(k)
+    return P
+
+def papi_parts(): return avatar_parts("papi")
+
+def voice_envelope(path, fps=FPS):
+    raw = subprocess.check_output(["ffmpeg", "-loglevel", "error", "-i", path, "-ac", "1", "-ar", "16000", "-f", "s16le", "-"])
+    a = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
+    hop = 16000 // fps; n = len(a) // hop
+    r = np.sqrt((a[:n * hop].reshape(n, hop) ** 2).mean(1))
+    r = r / (np.percentile(r, 95) + 1e-6)
+    out = np.zeros_like(r); v = 0.0
+    for i, x in enumerate(r):
+        v = x if x > v else v * 0.55 + x * 0.45  # attaque rapide, relâche douce
+        out[i] = v
+    return np.clip(out, 0, 1.3)
+
+class Actor:
+    """Personnage animé : respiration, gestes en parlant, hochements de tête, sourcils, bouche synchronisée."""
+    PIV_L, PIV_R, PIV_H = (122, 230), (278, 230), (200, 205)
+    def __init__(self, perso, env, words, emph_words):
+        self.P = avatar_parts(perso) if perso in AVATARS else char_parts(perso == "f"); self.env = env; self.words = words
+        self.blinks = []; bt = 1.3
+        rnd = random.Random(11)
+        while bt < 400: self.blinks.append(bt); bt += rnd.uniform(2.4, 4.6)
+        n = len(env) + 60
+        self.emph = np.zeros(n, np.float32)
+        for w in words:
+            k = norm(w["text"]); strong = k in emph_words or any(ch.isdigit() for ch in w["text"])
+            i0 = int(w["start"] * FPS)
+            for j in range(0, 12):
+                if i0 + j < n: self.emph[i0 + j] = max(self.emph[i0 + j], (1.0 if strong else 0.0) * math.exp(-j / 3.5))
+        self.phr = [words[0]["start"]] + [b["start"] for a, b in zip(words, words[1:]) if b["start"] - a["end"] > 0.28] if words else []
+        self.state = None
+    def amp(self, t):
+        i = int(t * FPS); return float(self.env[i]) if 0 <= i < len(self.env) else 0.0
+    def cur_word(self, t):
+        for w in self.words:
+            if w["start"] <= t < w["end"] + 0.05: return w["text"].lower()
+        return ""
+    def gesture(self, t, pose):
+        if pose == "point": return ("explain" if self.amp(t) > 0.1 and int(t / 2.3) % 2 else "down", "point")
+        if pose == "shock": return ("up", "up")
+        if pose == "think": return ("down", "think")
+        talking = any(abs(t - w["start"]) < 0.9 for w in self.words if w["start"] <= t + 0.2)
+        if not talking: return ("down", "down")
+        k = sum(1 for p in self.phr if p <= t)
+        return [("down", "explain"), ("explain", "explain"), ("explain", "down"), ("open", "open"), ("down", "explain"), ("down", "down")][k % 6]
+    def frame(self, t, pose):
+        P = self.P; a = self.amp(t); e = float(self.emph[int(t * FPS)]) if int(t * FPS) < len(self.emph) else 0.0
+        g = self.gesture(t, pose)
+        if self.state is None or self.state[0] != g or self.state[2] != pose:
+            prev = self.state[0] if self.state else g
+            self.state = (g, prev, pose, t)
+        g, prev, _, tc = self.state
+        mix = clamp((t - tc) / 0.16)
+        br = math.sin(t * 2.3)
+        body_dy = -1.5 - 1.5 * br
+        out = Image.new("RGBA", (400, 560), (0, 0, 0, 0))
+        def comp(img, dy=0.0, ang=0.0, piv=(200, 230), alpha=1.0):
+            if ang: img = img.rotate(ang, resample=Image.BICUBIC, center=piv)
+            if alpha < 0.999:
+                img = img.copy(); img.putalpha(img.getchannel("A").point(lambda v: int(v * alpha)))
+            out.alpha_composite(img, (0, int(round(40 + dy))))
+        comp(P["legs"])
+        comp(P["hair_back"], body_dy)
+        comp(P["torso"], body_dy)
+        sw = (5 * math.sin(t * 4.7) * min(1, a * 1.5)) if pose in ("idle", "point") else (4 * math.sin(t * 9) if pose == "shock" else 0)
+        for side, piv, idx, sgn in (("L", self.PIV_L, 0, -1), ("R", self.PIV_R, 1, 1)):
+            cur, old = g[idx], prev[idx]
+            ang = sgn * sw * (0.6 if side == "L" else 1.0)
+            if mix < 1 and old != cur:
+                comp(P[f"{side}_{old}"], body_dy, ang, piv, 1 - mix); comp(P[f"{side}_{cur}"], body_dy, ang, piv, mix)
+            else:
+                comp(P[f"{side}_{cur}"], body_dy, ang, piv)
+        comp(P["scarf"], body_dy)
+        # tête : hochement sur les mots forts, petite inclinaison, sourcils, bouche
+        head = P["head"].copy()
+        raise_ = 9 * max(1.0 if pose == "shock" else 0.0, e)
+        rw = self.cur_word(t)
+        rest = {"shock": "o", "think": "line"}.get(pose, "smile")
+        if a < 0.09: m = rest
+        elif any(v in rw for v in ("ou", "o", "au")) and a > 0.2: m = "o"
+        elif a < 0.32: m = "small"
+        elif a < 0.62: m = "mid"
+        else: m = "wide"
+        if "eyes_open" in P:
+            blink = any(0 <= t - b < 0.13 for b in self.blinks)
+            head.alpha_composite(P["eyes_closed" if blink else "eyes_open"])
+            head.alpha_composite(P["brows"], (0, int(-min(raise_, P.get("raise_max", 9)))))
+            head.alpha_composite(P["glasses"])
+        head.alpha_composite(P["m_" + m])
+        if "mustache" in P: head.alpha_composite(P["mustache"], (0, int(min(3, a * 4))))
+        tilt = 2.2 * math.sin(t * 1.25) + 2.5 * e * (1 if int(t * 3) % 2 else -1) * 0.6
+        nod = -5 * e + 1.2 * math.sin(t * 6.0) * min(1, a)
+        comp(head, body_dy + nod, tilt, self.PIV_H)
+        return out
+
 # ---------- mots, nombres, ancres ----------
 def norm(s):
     s = unicodedata.normalize("NFD", s.lower()); s = "".join(c for c in s if unicodedata.category(c) != "Mn")
@@ -354,6 +641,7 @@ class Video:
         self.BG, self.RAIN = make_bg(), make_rain()
         fem = cfg.get("perso", "f") == "f"
         self.POSE = {p: character(p, fem) for p in ("idle", "point", "shock", "think")}
+        self.fem = fem; self.perso = cfg.get("perso", "f"); self.actor = None
         self.STREET, self.OFFICE, self.ENV = make_street(), make_office(), make_envelope()
         self.caps = [(t, caption_img(s)) for t, s in build_captions(words, cfg.get("red_words", []), cfg.get("yellow_words", []))]
         self._cache = {}
@@ -385,6 +673,10 @@ class Video:
             s["t1"] = self.scenes[i + 1]["t0"] - 0.15 if i + 1 < len(self.scenes) else dur
         self.stamps = [e["_t"] for s in self.scenes for e in s["els"] if e["type"] in ("stamp", "hit")] + \
                       [e["_stamp_at"] for s in self.scenes for e in s["els"] if e["type"] == "envelope" and "_stamp_at" in e]
+
+    def load_voice(self, voice):
+        emph = {norm(x) for x in self.cfg.get("red_words", []) + self.cfg.get("yellow_words", [])}
+        self.actor = Actor(self.perso, voice_envelope(voice), self.words, emph)
 
     def cached(self, key, fn):
         if key not in self._cache: self._cache[key] = fn()
@@ -603,7 +895,17 @@ class Video:
             for pt, pp in cur_scene["poses"]:
                 if t >= pt: pose = pp
             s, a = pop(t, cur_scene["t0"], 0.4)
-            paste(fr, self.POSE.get(pose, self.POSE["idle"]), ch.get("x", 230) + dx, ch.get("y", 1250) + math.sin(t * 3.2) * 6 + dy, s, a)
+            x1, y1 = ch.get("x", 230), ch.get("y", 1250)
+            i = self.scenes.index(cur_scene); prev = self.scenes[i - 1]["char"] if i > 0 else None
+            hop = 0.0
+            if self.actor is not None and prev and prev.get("pose") != "none" and (prev.get("x", 230), prev.get("y", 1250)) != (x1, y1):
+                k = clamp((t - cur_scene["t0"]) / 0.5); s, a = 1.0, 1.0
+                x1 = prev.get("x", 230) + (x1 - prev.get("x", 230)) * ease_in_out(k)
+                y1 = prev.get("y", 1250) + (y1 - prev.get("y", 1250)) * ease_in_out(k); hop = -46 * math.sin(math.pi * k)
+            if self.actor is not None:
+                paste(fr, self.actor.frame(t, pose), x1 + dx, y1 + 20 + hop + math.sin(t * 3.2) * 3 + dy, s, a)
+            else:
+                paste(fr, self.POSE.get(pose, self.POSE["idle"]), x1 + dx, y1 + math.sin(t * 3.2) * 6 + dy, s, a)
         if cur_scene:
             k = clamp((t - cur_scene["t0"]) / max(0.5, cur_scene["t1"] - cur_scene["t0"]))
             z = 1.0 + 0.045 * ease_in_out(k)
@@ -691,8 +993,13 @@ def make_thumb(cfg, out):
         else: dd.line([cx - 18, cy - 18, cx + 18, cy + 18], fill=WHITE, width=12); dd.line([cx - 18, cy + 18, cx + 18, cy - 18], fill=WHITE, width=12)
         return cd.rotate(4 if good else -4, expand=True, resample=Image.BICUBIC)
     cy = by + 150
-    ch = character("shock", fem).resize((340, 589))
-    img.alpha_composite(ch, ((W - 340) // 2, H - 589 - 210))
+    if cfg.get("perso") in AVATARS:
+        ac = Actor(cfg["perso"], np.zeros(10, np.float32), [], set())
+        ch = ac.frame(0.3, "shock"); ch = ch.resize((int(ch.width * 1.133), int(ch.height * 1.133)), Image.LANCZOS)
+        img.alpha_composite(ch, ((W - ch.width) // 2, H - ch.height - 210 + 45))
+    else:
+        ch = character("shock", fem).resize((340, 589))
+        img.alpha_composite(ch, ((W - 340) // 2, H - 589 - 210))
     a = card(th["card_a"], True); b = card(th["card_b"], False)
     img.alpha_composite(b, (W - b.width + 5, cy + 50)); img.alpha_composite(a, (-5, cy))
     bt = th["bottom"]; fb = fit(bt, 900, 84)
@@ -719,6 +1026,7 @@ def main():
     dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", voice]).decode()) + 0.7
     dur = max(dur, float(cfg.get("min_duration", 64.6)))  # programme de récompense TikTok : 64 s minimum
     v = Video(cfg, words, dur)
+    if not cfg.get("static_char"): v.load_voice(voice)
     if cmd == "stills":
         ts = list(np.linspace(0.8, dur - 1, 16))
         ims = [v.render(x).resize((216, 384)) for x in ts]

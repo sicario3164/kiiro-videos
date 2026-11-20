@@ -37,7 +37,7 @@ def _line(d, pts, w, fill, outline=None, ow=0):
 CLOTHES = {"kid": (92, 124, 176), "teacher": (244, 243, 236), "adult": (110, 116, 128), "woman": (222, 120, 140),
            "boss": (52, 56, 70), "dad": (34, 34, 40), "son": (34, 34, 40), "girl": (200, 90, 120)}
 
-def person(style, who="kid", pose="idle", face="neutral"):
+def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=False):
     S = 2; w, h = 420 * S, 760 * S; cx = w // 2
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
     small = who in ("kid", "son", "girl")
@@ -116,6 +116,7 @@ def person(style, who="kid", pose="idle", face="neutral"):
     # visage
     ex = 30 * S * k; ey = hc[1] - 6 * S * k; er = 9 * S * k
     def eyes(shape="dot"):
+        if blink and shape in ("dot", "big"): shape = "half"
         for sx in (-1, 1):
             x = hc[0] + sx * ex
             if shape == "dot": d.ellipse([x - er, ey - er * 1.3, x + er, ey + er * 1.3], fill=(20, 20, 22))
@@ -146,6 +147,16 @@ def person(style, who="kid", pose="idle", face="neutral"):
         eyes("half"); d.line([hc[0] - 16 * S, my + 8 * S, hc[0] + 16 * S, my + 8 * S], fill=(40, 20, 20), width=int(5 * S))
     else:
         eyes(); d.line([hc[0] - 16 * S, my + 6 * S, hc[0] + 16 * S, my + 6 * S], fill=(40, 20, 20), width=int(5 * S))
+    if mouth:  # bouche qui parle (synchronisée sur la voix)
+        mcol = (40, 20, 20)
+        d.rectangle([hc[0] - 34 * S, my - 30 * S, hc[0] + 34 * S, my + 34 * S], fill=None)
+        # efface la bouche dessinée par l'expression
+        d.ellipse([hc[0] - 34 * S * k, my - 14 * S * k, hc[0] + 34 * S * k, my + 32 * S * k], fill=skin)
+        rw_, rh_ = {"small": (14, 7), "mid": (18, 12), "wide": (21, 17), "o": (12, 15)}[mouth]
+        cy_ = my + 8 * S * k
+        d.ellipse([hc[0] - rw_ * S * k, cy_ - rh_ * S * k, hc[0] + rw_ * S * k, cy_ + rh_ * S * k], fill=(90, 30, 40))
+        if mouth in ("mid", "wide"):
+            d.ellipse([hc[0] - rw_ * 0.6 * S * k, cy_ + rh_ * 0.1 * S * k, hc[0] + rw_ * 0.6 * S * k, cy_ + rh_ * 0.95 * S * k], fill=(220, 90, 100))
     if style == "salon" and face in ("happy", "shock", "sweat", "sad"):
         for sx in (-1, 1):
             x = hc[0] + sx * 56 * S * k; d.ellipse([x - 16 * S, my - 22 * S, x + 16 * S, my - 6 * S], fill=(250, 170, 180))
@@ -385,11 +396,26 @@ class Video:
             for c in sc.get("chars", []):
                 q = dict(c); q["_t"] = resolve(c["at"], words, idx)[0] if "at" in c else t0
                 q["_changes"] = [(resolve(ch["at"], words, idx)[0], ch) for ch in c.get("changes", [])]; chars.append(q)
-            self.scenes.append({"t0": t0, "style": st, "bg": sc.get("bg", "street" if st == "papier" else "living"), "props": props,
+            spk = [(t0, sc.get("speaker", 0))] + [(resolve(x["at"], words, idx)[0], x["speaker"]) for x in sc.get("speaker_changes", [])]
+            self.scenes.append({"spk": spk, "t0": t0, "style": st, "bg": sc.get("bg", "street" if st == "papier" else "living"), "props": props,
                                 "chars": chars, "name": sc.get("name", ""), "stamp": sc.get("stamp")})
         for i, s in enumerate(self.scenes): s["t1"] = self.scenes[i + 1]["t0"] if i + 1 < len(self.scenes) else dur
         self.stamps = [p["_t"] for s in self.scenes for p in s["props"] if p.get("impact")]
         self.caps = self.build_caps()
+        self.env = None
+        self.phr = [words[0]["start"]] + [b["start"] for a, b in zip(words, words[1:]) if b["start"] - a["end"] > 0.28] if words else []
+
+    def load_voice(self, voice):
+        if voice: self.env = R.voice_envelope(voice)
+
+    def amp(self, t):
+        if self.env is None: return 0.0
+        i = int(t * FPS); return float(self.env[i]) if 0 <= i < len(self.env) else 0.0
+
+    def cur_word(self, t):
+        for w in self.words:
+            if w["start"] <= t < w["end"] + 0.05: return w["text"].lower()
+        return ""
 
     def build_caps(self):
         ws = self.words; out = []; i = 0
@@ -433,14 +459,30 @@ class Video:
         for stt in self.stamps:
             if stt <= t < stt + 0.3:
                 q = 1 - (t - stt) / 0.3; dx = int(math.sin(t * 90) * 12 * q); dy = int(math.cos(t * 70) * 9 * q)
-        # personnages
-        for c in sc["chars"]:
+        # personnages : celui qui parle = "speaker" (index dans chars, défaut 0, null = personne) ; "speaker_changes": [{"at", "speaker"}]
+        si = 0
+        for ts_, sv in sc["spk"]:
+            if t >= ts_: si = sv
+        speaker = sc["chars"][si] if (si is not None and 0 <= si < len(sc["chars"]) and t >= sc["chars"][si]["_t"]) else None
+        a_ = self.amp(t); nph = sum(1 for p in self.phr if p <= t)
+        for ci, c in enumerate(sc["chars"]):
             if t < c["_t"]: continue
             cur = dict(c)
             for ct, ch in c["_changes"]:
                 if t >= ct: cur.update({kk: vv for kk, vv in ch.items() if kk != "at"})
-            img = self.cached(("p", st, cur.get("who", "kid"), cur.get("pose", "idle"), cur.get("face", "neutral")),
-                              lambda: person(st, cur.get("who", "kid"), cur.get("pose", "idle"), cur.get("face", "neutral")))
+            talking = c is speaker and a_ > 0.09
+            pose = cur.get("pose", "idle")
+            if c is speaker and pose == "idle" and self.env is not None and any(abs(t - w["start"]) < 0.9 for w in self.words if w["start"] <= t + 0.2):
+                side = -1 if cur.get("flip") else 1
+                prop_side = any((p.get("x", 540) - cur.get("x", 540)) * side > 60 for p in sc["props"] if t >= p["_t"])
+                pose = ["idle", "hand_out", "idle", "point" if prop_side else "hand_out"][nph % 4]
+            mouth = None
+            if talking:
+                rw = self.cur_word(t)
+                mouth = "o" if (any(v in rw for v in ("ou", "o", "au")) and a_ > 0.2) else ("small" if a_ < 0.32 else "mid" if a_ < 0.62 else "wide")
+            blink = ((t + ci * 1.37 + c.get("x", 540) * 0.003) % 3.6) < 0.12 and cur.get("face", "neutral") not in ("tired",)
+            key = ("p", st, cur.get("who", "kid"), pose, cur.get("face", "neutral"), mouth, blink)
+            img = self.cached(key, lambda: person(st, cur.get("who", "kid"), pose, cur.get("face", "neutral"), mouth, blink))
             scale = cur.get("scale", 1.0) * (1.2 if st == "papier" else 1.25)
             s_, a_ = pop(t, c["_t"], 0.35)
             yb = cur.get("y", 0.86) * ah
@@ -448,7 +490,7 @@ class Video:
             if "walk_to" in cur:
                 kk = ease_in_out((t - c["_t"]) / cur.get("walk_dur", 1.2)); x = x + (cur["walk_to"] - x) * kk
             im = img if cur.get("flip") is not True else img.transpose(Image.FLIP_LEFT_RIGHT)
-            bob = math.sin(t * 3.0 + x * 0.01) * 5
+            bob = math.sin(t * 3.0 + x * 0.01) * 5 + (math.sin(t * 13) * 4 * min(1, a_) if talking else 0)
             paste(area, im, x + dx, yb - im.height * scale / 2 + bob + dy, scale * (0.9 + 0.1 * s_), a_)
         # accessoires
         for p in sc["props"]:
@@ -553,7 +595,7 @@ def fake_words(text, wps=3.3):
     return out
 
 def run(cfg, words, voice, out, dur):
-    v = Video(cfg, words, dur); build_audio(v, voice, "_mix.wav")
+    v = Video(cfg, words, dur); v.load_voice(voice); build_audio(v, voice, "_mix.wav")
     p = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                           "-i", "_mix.wav", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
                           "-shortest", "-movflags", "+faststart", out], stdin=subprocess.PIPE)
@@ -583,7 +625,7 @@ def main():
     dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", voice]).decode()) + 0.7
     dur = max(dur, float(cfg.get("min_duration", 64.6)))
     if cmd == "stills":
-        v = Video(cfg, words, dur); ts = list(np.linspace(0.8, dur - 1, 16)); ims = [v.render(x).resize((216, 384)) for x in ts]
+        v = Video(cfg, words, dur); v.load_voice(voice); ts = list(np.linspace(0.8, dur - 1, 16)); ims = [v.render(x).resize((216, 384)) for x in ts]
         s = Image.new("RGB", (216 * 8, 384 * 2))
         for i, im in enumerate(ims): s.paste(im, ((i % 8) * 216, (i // 8) * 384))
         s.save(out, quality=85); print("OK", out); return

@@ -1,84 +1,441 @@
 {
-  "title": "Frais bancaires plafonnés",
-  "perso": "f",
-  "red_words": ["droit", "plafonne", "conteste", "recommandé", "normal", "pourtant", "jamais"],
-  "yellow_words": ["gratuit", "remboursement", "argent", "droits", "maximum", "remboursés", "fragile"],
-  "scenes": [
-    {"name": "hook", "at": "Ta banque", "char": {"pose": "point", "x": 250}, "poses": [{"at": "pourtant", "pose": "shock"}],
-     "elements": [
-       {"type": "pill", "text": "LA LOI", "color": "red", "y": 300},
-       {"type": "valuecard", "label": "TA BANQUE", "sub": "Frais max / mois", "value": "80 €", "count": 80, "y": 620},
-       {"type": "hit", "at": "pourtant", "text": "144 €", "y": 1010},
-       {"type": "pill", "at": "elle le fait", "text": "PRÉLEVÉS À SARAH", "color": "navy", "size": 32, "y": 1140}
-     ]},
-    {"name": "histoire", "at": "regarde Sarah", "char": {"pose": "idle", "x": 250, "y": 1220}, "poses": [{"at": "elle appelle", "pose": "think"}],
-     "elements": [
-       {"type": "street"},
-       {"type": "bigvalue", "at": "cent quarante-quatre", "text": "144 €", "color": "red", "y": 300},
-       {"type": "phone", "at": "commissions", "until": "elle appelle", "title": "Ma Banque", "sub": "Frais du mois",
-        "rows": [["Commission d'intervention", "-8 €"], ["Commission d'intervention", "-8 €"], ["Commission d'intervention", "-8 €"],
-                 ["Commission d'intervention", "-8 €"], ["Commission d'intervention", "-8 €"], ["Commission d'intervention", "-8 €"], ["…", "…"]],
-        "total": "-144 €", "total_count": 144},
-       {"type": "bubble", "at": "elle appelle", "who": "Conseillère", "y": 700,
-        "messages": [{"at": "normal", "text": "« C'est normal »"}, {"at": "contrat", "text": "« C'est dans le contrat »"}]},
-       {"type": "stamp", "at": "elle paie", "text": "PAYÉ", "y": 330}
-     ]},
-    {"name": "révélation", "at": "sauf que", "char": {"pose": "think", "x": 230, "y": 1230}, "poses": [{"at": "plafonne", "pose": "shock"}],
-     "elements": [
-       {"type": "bubble", "who": "Ce qu'on ne lui dit pas :", "y": 560, "until": "plafonne", "messages": [{"at": "sauf que", "text": "« … »"}]},
-       {"type": "pill", "at": "article", "text": "Code monétaire et financier", "color": "navy", "size": 32, "y": 380},
-       {"type": "gauge", "at": "plafonne", "label": "PLAFOND LÉGAL"}
-     ]},
-    {"name": "la loi", "at": "une commission", "char": {"pose": "point", "x": 860},
-     "elements": [
-       {"type": "document", "small": "Code monétaire et financier", "title": "Article R312-4-1",
-        "lines": ["Les commissions d'intervention", "ne peuvent dépasser", "8 € par opération", "et 80 € par mois."],
-        "highlight": [{"line": 2, "at": "huit euros"}, {"line": 3, "at": "quatre-vingts euros maximum"}]},
-       {"type": "pill", "at": "quatre-vingts euros maximum", "text": "MAX 80 € / MOIS", "color": "red", "y": 270},
-       {"type": "toggle", "at": "si tu es", "label": "Client fragile", "value": "20 €", "value_at": "fragile"},
-       {"type": "pill", "at": "pas un centime", "text": "PAS UN CENTIME DE PLUS", "color": "yellow", "size": 34, "y": 380}
-     ]},
-    {"name": "calcul", "at": "alors Sarah ouvre", "char": {"pose": "think", "x": 860},
-     "elements": [
-       {"type": "calc", "title": "Relevés", "rows": [{"label": "Commissions du mois", "value": "-144 €", "color": "red", "at": "elle compte"},
-                                                     {"label": "Plafond légal", "value": "80 €", "at": "le plafond"}],
-        "result": {"label": "Trop prélevé", "count": 64}, "result_at": "ça fait"}
-     ]},
-    {"name": "lettre", "at": "elle écrit", "char": {"pose": "idle", "x": 930, "y": 1300},
-     "elements": [
-       {"type": "letter", "object": "Objet : contestation de frais", "signature": "Sarah",
-        "lines": [{"at": "madame", "text": "Madame, Monsieur,"}, {"at": "je conteste", "text": "Je conteste les commissions"},
-                  {"at": "d'intervention prélevées", "text": "d'intervention prélevées au-delà"},
-                  {"at": "du plafond légal", "text": "du plafond légal, et j'en", "highlight": "plafond légal"},
-                  {"at": "demande le remboursement", "text": "demande le remboursement."}]}
-     ]},
-    {"name": "envoi", "at": "elle l'envoie", "char": {"pose": "point", "x": 230},
-     "elements": [
-       {"type": "envelope", "stamp": "RECOMMANDÉ", "stamp_at": "recommandé", "fly_at": "si la banque"},
-       {"type": "infocard", "at": "ne répond pas", "small": "Sans réponse", "title": "Médiateur bancaire", "pill": "GRATUIT", "pill_at": "gratuit"}
-     ]},
-    {"name": "résultat", "at": "résultat", "char": {"pose": "shock", "x": 540, "y": 1180},
-     "elements": [
-       {"type": "bigvalue", "at": "soixante-quatre euros remboursés", "text": "64 €", "count": 64, "color": "yellow", "size": 220, "y": 560},
-       {"type": "pill", "at": "remboursés", "text": "REMBOURSÉS", "color": "green", "size": 44, "y": 760},
-       {"type": "confetti", "at": "remboursés"}
-     ]},
-    {"name": "morale", "at": "au guichet", "char": {"pose": "none"},
-     "elements": [
-       {"type": "split", "left": ["Au guichet", "« c'est", "normal »"], "right": ["Par écrit", "tu récupères", "ton argent"], "right_at": "par écrit"}
-     ]},
-    {"name": "cta", "at": "et toi combien", "char": {"pose": "point", "x": 230, "y": 1260},
-     "elements": [
-       {"type": "cta", "question": "Combien ta banque t'a pris ?", "button": "ABONNE-TOI", "button_at": "abonne-toi"}
-     ]}
-  ],
-  "thumb": {
-    "title1": "TA BANQUE TE DOIT",
-    "title2": "64 € ?!",
-    "emoji": "😱",
-    "banner": "LA LOI PLAFONNE TES FRAIS",
-    "card_a": {"big": "80 €", "lines": ["MAXIMUM", "PAR MOIS"], "sub": "ce que dit la loi"},
-    "card_b": {"big": "144 €", "lines": ["PRÉLEVÉS", "À SARAH"], "sub": "ce que la banque a pris"},
-    "bottom": "FRAIS BANCAIRES"
+ "title": "Frais bancaires plafonnés",
+ "perso": "nora",
+ "red_words": [
+  "droit",
+  "plafonne",
+  "conteste",
+  "recommandé",
+  "normal",
+  "pourtant",
+  "jamais"
+ ],
+ "yellow_words": [
+  "gratuit",
+  "remboursement",
+  "argent",
+  "droits",
+  "maximum",
+  "remboursés",
+  "fragile"
+ ],
+ "scenes": [
+  {
+   "name": "hook",
+   "at": "Ta banque",
+   "char": {
+    "pose": "point",
+    "x": 250
+   },
+   "poses": [
+    {
+     "at": "pourtant",
+     "pose": "shock"
+    }
+   ],
+   "elements": [
+    {
+     "type": "pill",
+     "text": "LA LOI",
+     "color": "red",
+     "y": 300
+    },
+    {
+     "type": "valuecard",
+     "label": "TA BANQUE",
+     "sub": "Frais max / mois",
+     "value": "80 €",
+     "count": 80,
+     "y": 620
+    },
+    {
+     "type": "hit",
+     "at": "pourtant",
+     "text": "144 €",
+     "y": 1010
+    },
+    {
+     "type": "pill",
+     "at": "elle le fait",
+     "text": "PRÉLEVÉS À SARAH",
+     "color": "navy",
+     "size": 32,
+     "y": 1140
+    }
+   ]
+  },
+  {
+   "name": "histoire",
+   "at": "regarde Sarah",
+   "char": {
+    "pose": "idle",
+    "x": 250,
+    "y": 1220
+   },
+   "poses": [
+    {
+     "at": "elle appelle",
+     "pose": "think"
+    }
+   ],
+   "elements": [
+    {
+     "type": "street"
+    },
+    {
+     "type": "bigvalue",
+     "at": "cent quarante-quatre",
+     "text": "144 €",
+     "color": "red",
+     "y": 300
+    },
+    {
+     "type": "phone",
+     "at": "commissions",
+     "until": "elle appelle",
+     "title": "Ma Banque",
+     "sub": "Frais du mois",
+     "rows": [
+      [
+       "Commission d'intervention",
+       "-8 €"
+      ],
+      [
+       "Commission d'intervention",
+       "-8 €"
+      ],
+      [
+       "Commission d'intervention",
+       "-8 €"
+      ],
+      [
+       "Commission d'intervention",
+       "-8 €"
+      ],
+      [
+       "Commission d'intervention",
+       "-8 €"
+      ],
+      [
+       "Commission d'intervention",
+       "-8 €"
+      ],
+      [
+       "…",
+       "…"
+      ]
+     ],
+     "total": "-144 €",
+     "total_count": 144
+    },
+    {
+     "type": "bubble",
+     "at": "elle appelle",
+     "who": "Conseillère",
+     "y": 700,
+     "messages": [
+      {
+       "at": "normal",
+       "text": "« C'est normal »"
+      },
+      {
+       "at": "contrat",
+       "text": "« C'est dans le contrat »"
+      }
+     ]
+    },
+    {
+     "type": "stamp",
+     "at": "elle paie",
+     "text": "PAYÉ",
+     "y": 330
+    }
+   ]
+  },
+  {
+   "name": "révélation",
+   "at": "sauf que",
+   "char": {
+    "pose": "think",
+    "x": 230,
+    "y": 1230
+   },
+   "poses": [
+    {
+     "at": "plafonne",
+     "pose": "shock"
+    }
+   ],
+   "elements": [
+    {
+     "type": "bubble",
+     "who": "Ce qu'on ne lui dit pas :",
+     "y": 560,
+     "until": "plafonne",
+     "messages": [
+      {
+       "at": "sauf que",
+       "text": "« … »"
+      }
+     ]
+    },
+    {
+     "type": "pill",
+     "at": "article",
+     "text": "Code monétaire et financier",
+     "color": "navy",
+     "size": 32,
+     "y": 380
+    },
+    {
+     "type": "gauge",
+     "at": "plafonne",
+     "label": "PLAFOND LÉGAL"
+    }
+   ]
+  },
+  {
+   "name": "la loi",
+   "at": "une commission",
+   "char": {
+    "pose": "point",
+    "x": 860
+   },
+   "elements": [
+    {
+     "type": "document",
+     "small": "Code monétaire et financier",
+     "title": "Article R312-4-1",
+     "lines": [
+      "Les commissions d'intervention",
+      "ne peuvent dépasser",
+      "8 € par opération",
+      "et 80 € par mois."
+     ],
+     "highlight": [
+      {
+       "line": 2,
+       "at": "huit euros"
+      },
+      {
+       "line": 3,
+       "at": "quatre-vingts euros maximum"
+      }
+     ]
+    },
+    {
+     "type": "pill",
+     "at": "quatre-vingts euros maximum",
+     "text": "MAX 80 € / MOIS",
+     "color": "red",
+     "y": 270
+    },
+    {
+     "type": "toggle",
+     "at": "si tu es",
+     "label": "Client fragile",
+     "value": "20 €",
+     "value_at": "fragile"
+    },
+    {
+     "type": "pill",
+     "at": "pas un centime",
+     "text": "PAS UN CENTIME DE PLUS",
+     "color": "yellow",
+     "size": 34,
+     "y": 380
+    }
+   ]
+  },
+  {
+   "name": "calcul",
+   "at": "alors Sarah ouvre",
+   "char": {
+    "pose": "think",
+    "x": 860
+   },
+   "elements": [
+    {
+     "type": "calc",
+     "title": "Relevés",
+     "rows": [
+      {
+       "label": "Commissions du mois",
+       "value": "-144 €",
+       "color": "red",
+       "at": "elle compte"
+      },
+      {
+       "label": "Plafond légal",
+       "value": "80 €",
+       "at": "le plafond"
+      }
+     ],
+     "result": {
+      "label": "Trop prélevé",
+      "count": 64
+     },
+     "result_at": "ça fait"
+    }
+   ]
+  },
+  {
+   "name": "lettre",
+   "at": "elle écrit",
+   "char": {
+    "pose": "idle",
+    "x": 930,
+    "y": 1300
+   },
+   "elements": [
+    {
+     "type": "letter",
+     "object": "Objet : contestation de frais",
+     "signature": "Sarah",
+     "lines": [
+      {
+       "at": "madame",
+       "text": "Madame, Monsieur,"
+      },
+      {
+       "at": "je conteste",
+       "text": "Je conteste les commissions"
+      },
+      {
+       "at": "d'intervention prélevées",
+       "text": "d'intervention prélevées au-delà"
+      },
+      {
+       "at": "du plafond légal",
+       "text": "du plafond légal, et j'en",
+       "highlight": "plafond légal"
+      },
+      {
+       "at": "demande le remboursement",
+       "text": "demande le remboursement."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "envoi",
+   "at": "elle l'envoie",
+   "char": {
+    "pose": "point",
+    "x": 230
+   },
+   "elements": [
+    {
+     "type": "envelope",
+     "stamp": "RECOMMANDÉ",
+     "stamp_at": "recommandé",
+     "fly_at": "si la banque"
+    },
+    {
+     "type": "infocard",
+     "at": "ne répond pas",
+     "small": "Sans réponse",
+     "title": "Médiateur bancaire",
+     "pill": "GRATUIT",
+     "pill_at": "gratuit"
+    }
+   ]
+  },
+  {
+   "name": "résultat",
+   "at": "résultat",
+   "char": {
+    "pose": "shock",
+    "x": 540,
+    "y": 1180
+   },
+   "elements": [
+    {
+     "type": "bigvalue",
+     "at": "soixante-quatre euros remboursés",
+     "text": "64 €",
+     "count": 64,
+     "color": "yellow",
+     "size": 220,
+     "y": 560
+    },
+    {
+     "type": "pill",
+     "at": "remboursés",
+     "text": "REMBOURSÉS",
+     "color": "green",
+     "size": 44,
+     "y": 760
+    },
+    {
+     "type": "confetti",
+     "at": "remboursés"
+    }
+   ]
+  },
+  {
+   "name": "morale",
+   "at": "au guichet",
+   "char": {
+    "pose": "none"
+   },
+   "elements": [
+    {
+     "type": "split",
+     "left": [
+      "Au guichet",
+      "« c'est",
+      "normal »"
+     ],
+     "right": [
+      "Par écrit",
+      "tu récupères",
+      "ton argent"
+     ],
+     "right_at": "par écrit"
+    }
+   ]
+  },
+  {
+   "name": "cta",
+   "at": "et toi combien",
+   "char": {
+    "pose": "point",
+    "x": 230,
+    "y": 1260
+   },
+   "elements": [
+    {
+     "type": "cta",
+     "question": "Combien ta banque t'a pris ?",
+     "button": "ABONNE-TOI",
+     "button_at": "abonne-toi"
+    }
+   ]
   }
+ ],
+ "thumb": {
+  "title1": "TA BANQUE TE DOIT",
+  "title2": "64 € ?!",
+  "emoji": "😱",
+  "banner": "LA LOI PLAFONNE TES FRAIS",
+  "card_a": {
+   "big": "80 €",
+   "lines": [
+    "MAXIMUM",
+    "PAR MOIS"
+   ],
+   "sub": "ce que dit la loi"
+  },
+  "card_b": {
+   "big": "144 €",
+   "lines": [
+    "PRÉLEVÉS",
+    "À SARAH"
+   ],
+   "sub": "ce que la banque a pris"
+  },
+  "bottom": "FRAIS BANCAIRES"
+ }
 }

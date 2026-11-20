@@ -1,0 +1,20 @@
+{"style": "salon", "min_duration": 0,
+ "scenes": [
+  {"name": "retour", "at": 0, "bg": "living", "chars": [{"who": "dad", "x": 1000, "walk_to": 700, "pose": "walk", "face": "tired", "flip": true}, {"who": "son", "x": 300, "face": "happy", "at": "demande"}],
+   "props": [{"type": "bubble", "text": "?", "x": 380, "y": 0.42, "at": "combien"}]},
+  {"name": "salaire", "at": "deux mille", "bg": "living", "chars": [{"who": "dad", "x": 700, "pose": "hand_out", "face": "neutral", "flip": true}, {"who": "son", "x": 300, "face": "shock"}],
+   "props": [{"type": "money_stack", "x": 520, "y": 0.55, "impact": true}, {"type": "banknote", "text": "2 000 €", "x": 520, "y": 0.4}]},
+  {"name": "riches", "at": "alors on", "bg": "city_night", "chars": [{"who": "son", "x": 540, "pose": "arms_up", "face": "happy"}],
+   "props": [{"type": "emoji", "text": "🤑", "x": 780, "y": 0.3}]},
+  {"name": "non", "at": "non mon fils", "bg": "living", "chars": [{"who": "dad", "x": 650, "pose": "think", "face": "sweat", "flip": true}, {"who": "son", "x": 300, "face": "neutral"}]},
+  {"name": "loyer", "at": "le loyer", "bg": "sunset", "chars": [{"who": "dad", "x": 300, "face": "sad", "pose": "hand_out"}],
+   "props": [{"type": "banknote", "text": "-900 €", "x": 740, "y": 0.32, "at": "neuf cents"}, {"type": "banknote", "text": "-600 €", "x": 740, "y": 0.42, "at": "les courses"},
+             {"type": "banknote", "text": "-400 €", "x": 740, "y": 0.52, "at": "les factures"}]},
+  {"name": "reste", "at": "et à la fin", "bg": "living_dark", "chars": [{"who": "dad", "x": 540, "face": "tired", "pose": "sad"}],
+   "props": [{"type": "text", "text": "100 €", "color": [255, 210, 63], "size": 140, "x": 540, "y": 0.3, "impact": true, "at": "cent euros"}]},
+  {"name": "école", "at": "et ça", "bg": "restaurant", "chars": [{"who": "son", "x": 400, "face": "shock"}, {"who": "dad", "x": 720, "face": "neutral", "flip": true}],
+   "props": [{"type": "cross", "x": 540, "y": 0.3, "at": "jamais"}]}
+ ],
+ "thumb": {"style": "salon", "bg": "living", "title1": "2 000 € PAR MOIS", "title2": "IL RESTE 100 € ?!", "emoji": "😰", "banner": "CE QUE L'ÉCOLE NE DIT PAS",
+           "chars": [{"who": "dad", "pose": "think", "face": "sweat", "x": 700, "scale": 1.2}, {"who": "son", "pose": "idle", "face": "shock", "x": 330, "scale": 1.2}], "bottom": "TON SALAIRE"}
+}

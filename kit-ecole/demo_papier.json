@@ -1,0 +1,23 @@
+{"style": "papier", "banner": ["École", "≠", "Vie réelle"], "min_duration": 0,
+ "scenes": [
+  {"name": "école", "at": 0, "bg": "school", "chars": [{"who": "kid", "x": 540, "y": 0.92, "face": "tired"}],
+   "props": [{"type": "crowd", "n": 5, "y": 0.8, "x": 540, "scale": 0.7, "at": "l'école"}]},
+  {"name": "main levée", "at": "lever la main", "bg": "classroom", "chars": [{"who": "kid", "x": 320, "pose": "point", "face": "neutral"}, {"who": "teacher", "x": 800, "pose": "point", "face": "angry", "flip": true}]},
+  {"name": "toilettes", "at": "demander la permission", "bg": "classroom", "chars": [{"who": "kid", "x": 420, "face": "sweat"}],
+   "props": [{"type": "thought", "text": "WC", "x": 640, "y": 0.3, "at": "toilettes"}]},
+  {"name": "copie", "at": "rendre ta copie", "bg": "classroom", "chars": [{"who": "kid", "x": 320, "face": "sad", "pose": "sad"}],
+   "props": [{"type": "clock", "x": 820, "y": 0.22}, {"type": "grade", "text": "8/20", "x": 700, "y": 0.55, "at": "à l'heure"}]},
+  {"name": "18 ans", "at": "mais le jour", "bg": "street", "chars": [{"who": "adult", "x": 400, "face": "neutral"}],
+   "props": [{"type": "calendar", "text": "18 ans", "x": 800, "y": 0.25, "impact": true, "at": "dix-huit"}]},
+  {"name": "fiche de paie", "at": "personne ne", "bg": "office", "chars": [{"who": "adult", "x": 360, "face": "shock", "pose": "shrug"}],
+   "props": [{"type": "thought", "text": "€ ?", "x": 700, "y": 0.25, "at": "fiche"}]},
+  {"name": "banque", "at": "ouvrir un compte", "bg": "bank", "chars": [{"who": "adult", "x": 330, "face": "sweat"}, {"who": "boss", "x": 780, "face": "happy", "flip": true}]},
+  {"name": "crédit", "at": "éviter un crédit", "bg": "street", "chars": [{"who": "adult", "x": 330, "face": "shock", "pose": "arms_up"}],
+   "props": [{"type": "chart_down", "x": 760, "y": 0.3}, {"type": "text", "text": "x2", "color": [230, 40, 40], "size": 120, "x": 760, "y": 0.62, "impact": true, "at": "deux fois"}]},
+  {"name": "seul", "at": "alors tu apprends", "bg": "desk_night", "chars": [{"who": "adult", "x": 480, "face": "tired", "pose": "think"}],
+   "props": [{"type": "books", "x": 280, "y": 0.5}]},
+  {"name": "trop tard", "at": "trop tard", "bg": "prison", "chars": [{"who": "adult", "x": 540, "face": "sad", "pose": "sad"}]}
+ ],
+ "thumb": {"style": "papier", "bg": "school", "title1": "L'ÉCOLE T'A MENTI", "title2": "PENDANT 15 ANS ?!", "emoji": "😳", "banner": "CE QU'ON NE T'APPREND PAS",
+           "chars": [{"who": "kid", "pose": "arms_up", "face": "shock", "x": 540, "scale": 1.6}], "bottom": "ÉCOLE ≠ VIE RÉELLE"}
+}

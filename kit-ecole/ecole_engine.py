@@ -55,8 +55,12 @@ def person(style, who="kid", pose="idle", face="neutral"):
     if style == "salon" and who in ("kid", "son", "adult"): cloth = (34, 34, 40)
     # jambes
     legs = {"walk": [((-28, 520), (-70, 735)), ((28, 520), (70, 735))]}.get(pose, [((-26, 520), (-34, 738)), ((26, 520), (34, 738))])
+    PANTS = {"kid": (58, 66, 92), "son": (58, 66, 92), "teacher": (70, 72, 84), "adult": (48, 52, 66), "boss": (36, 38, 48), "dad": (44, 46, 58)}
+    pants = PANTS.get(who)
     for a, b in legs:
-        if style == "salon": _line(d, [P(*a), P(*b)], int(26 * S * k), limb, outl, 4 * S)
+        if pants:  # pantalon
+            _line(d, [P(a[0], a[1] - 20), P(*b)], int((30 if style == "salon" else 24) * S * k), pants, outl, (4 if style == "salon" else 3) * S)
+        elif style == "salon": _line(d, [P(*a), P(*b)], int(26 * S * k), limb, outl, 4 * S)
         else: _line(d, [P(*a), P(*b)], int(10 * S * k), limb)
     # chaussures
     for a, b in legs:

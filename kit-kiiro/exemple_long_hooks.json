@@ -1,0 +1,148 @@
+{
+ "hooks": [
+  {
+   "t": 0.0,
+   "tag": "DOSSIER N°1",
+   "text": "LE CAMBRIOLAGE QUI A *TOUT RÉVÉLÉ*"
+  },
+  {
+   "t": 9.195,
+   "tag": "8 MARS 1971",
+   "text": "DES *CENTAINES* DE DOSSIERS"
+  },
+  {
+   "t": 22.54,
+   "tag": "CHAPITRE 1",
+   "text": "NOM DE CODE *COINTELPRO*"
+  },
+  {
+   "t": 36.63,
+   "tag": "1956 - 1971",
+   "text": "SURVEILLER *INFILTRER* DISCRÉDITER"
+  },
+  {
+   "t": 44.365,
+   "tag": "LA PREUVE",
+   "text": "LA *COMMISSION CHURCH*"
+  },
+  {
+   "t": 53.96,
+   "tag": "ET AUJOURD'HUI ?",
+   "text": "QU'EST-CE QUI *EXISTE ENCORE* ?"
+  }
+ ],
+ "shots": [
+  {
+   "t": 0.0,
+   "q": "night office building",
+   "alt": [
+    "dark office"
+   ]
+  },
+  {
+   "t": 6.23,
+   "q": "flashlight dark room",
+   "alt": [
+    "flashlight"
+   ]
+  },
+  {
+   "t": 9.195,
+   "q": "old files folders",
+   "alt": [
+    "archive documents"
+   ]
+  },
+  {
+   "t": 13.87,
+   "q": "archive shelves",
+   "alt": [
+    "filing cabinet"
+   ]
+  },
+  {
+   "t": 15.8,
+   "q": "newspaper printing",
+   "alt": [
+    "newspaper"
+   ]
+  },
+  {
+   "t": 19.48,
+   "q": "typewriter",
+   "alt": [
+    "old newsroom"
+   ]
+  },
+  {
+   "t": 22.54,
+   "q": "secret document",
+   "alt": [
+    "classified file"
+   ]
+  },
+  {
+   "t": 26.76,
+   "q": "surveillance camera",
+   "alt": [
+    "cctv"
+   ]
+  },
+  {
+   "t": 32.385,
+   "q": "crowd protest",
+   "alt": [
+    "march crowd"
+   ]
+  },
+  {
+   "t": 36.63,
+   "q": "letter envelope",
+   "alt": [
+    "writing letter"
+   ]
+  },
+  {
+   "t": 41.0,
+   "q": "old telephone",
+   "alt": [
+    "telephone"
+   ]
+  },
+  {
+   "t": 41.91,
+   "q": "shadow man",
+   "alt": [
+    "silhouette"
+   ]
+  },
+  {
+   "t": 44.365,
+   "q": "government building",
+   "alt": [
+    "capitol building"
+   ]
+  },
+  {
+   "t": 52.085,
+   "q": "documents stack",
+   "alt": [
+    "report papers"
+   ]
+  },
+  {
+   "t": 53.96,
+   "q": "city night aerial",
+   "alt": [
+    "city lights"
+   ]
+  },
+  {
+   "t": 61.215,
+   "q": "smartphone night",
+   "alt": [
+    "phone screen"
+   ]
+  }
+ ]
+}

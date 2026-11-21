@@ -36,7 +36,7 @@ def _line(d, pts, w, fill, outline=None, ow=0):
     d.line(pts, fill=fill, width=w, joint="curve")
     for p in (pts[0], pts[-1]): d.ellipse([p[0] - w / 2, p[1] - w / 2, p[0] + w / 2, p[1] + w / 2], fill=fill)
 
-CLOTHES = {"kid": (92, 124, 176), "teacher": (244, 243, 236), "adult": (110, 116, 128), "woman": (222, 120, 140),
+CLOTHES = {"street": (150, 152, 158), "street2": (128, 130, 137), "kid": (92, 124, 176), "teacher": (244, 243, 236), "adult": (110, 116, 128), "woman": (222, 120, 140),
            "boss": (52, 56, 70), "dad": (34, 34, 40), "son": (34, 34, 40), "girl": (200, 90, 120)}
 
 def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=False):
@@ -55,18 +55,27 @@ def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=Fals
         skin, outl, limb = (240, 190, 112), INK, (60, 50, 48)
     cloth = CLOTHES.get(who, (110, 116, 128))
     if style == "salon" and who in ("kid", "son", "adult"): cloth = (34, 34, 40)
+    street = who in ("street", "street2")
     # jambes
     legs = {"walk": [((-28, 520), (-70, 735)), ((28, 520), (70, 735))]}.get(pose, [((-26, 520), (-34, 738)), ((26, 520), (34, 738))])
-    PANTS = {"kid": (58, 66, 92), "son": (58, 66, 92), "teacher": (70, 72, 84), "adult": (48, 52, 66), "boss": (36, 38, 48), "dad": (44, 46, 58)}
+    PANTS = {"kid": (58, 66, 92), "son": (58, 66, 92), "teacher": (70, 72, 84), "adult": (48, 52, 66), "boss": (36, 38, 48), "dad": (44, 46, 58), "street": (32, 32, 36), "street2": (32, 32, 36)}
     pants = PANTS.get(who)
     for a, b in legs:
         if pants:  # pantalon
             _line(d, [P(a[0], a[1] - 20), P(*b)], int((30 if style == "salon" else 24) * S * k), pants, outl, (4 if style == "salon" else 3) * S)
         elif style == "salon": _line(d, [P(*a), P(*b)], int(26 * S * k), limb, outl, 4 * S)
         else: _line(d, [P(*a), P(*b)], int(10 * S * k), limb)
+    if street:  # bandes blanches du survêt
+        for a, b in legs:
+            sd = -1 if a[0] < 0 else 1
+            d.line([P(a[0] + sd * 12, a[1] - 14), P(b[0] + sd * 12, b[1] - 6)], fill=(235, 235, 235), width=int(5 * S * k))
     # chaussures
     for a, b in legs:
-        x, y = P(*b); d.ellipse([x - 26 * S * k, y - 12 * S * k, x + 26 * S * k, y + 10 * S * k], fill=(30, 30, 34))
+        x, y = P(*b)
+        if street:  # baskets blanches
+            d.rounded_rectangle([x - 34 * S * k, y - 16 * S * k, x + 34 * S * k, y + 12 * S * k], int(12 * S * k), fill=(248, 248, 248), outline=outl, width=3 * S)
+            d.line([x - 30 * S * k, y + 4 * S * k, x + 30 * S * k, y + 4 * S * k], fill=(200, 200, 205), width=int(3 * S))
+        else: d.ellipse([x - 26 * S * k, y - 12 * S * k, x + 26 * S * k, y + 10 * S * k], fill=(30, 30, 34))
     # bras (positions des mains)
     sh_l, sh_r = (-70, 270), (70, 270)
     hands = {"idle": ((-92, 470), (92, 470)), "point": ((-92, 470), (190, 190)), "arms_up": ((-150, 120), (150, 120)),
@@ -79,7 +88,7 @@ def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=Fals
     arms = [(sh_l, elbow(sh_l, hl, -1), hl), (sh_r, elbow(sh_r, hr, 1), hr)]
     def draw_arms():
         for s, m, e in arms:
-            if style == "salon": _line(d, [P(*s), P(*m), P(*e)], int(24 * S * k), (cloth if who in ("dad", "boss") else limb), outl, 4 * S)
+            if style == "salon": _line(d, [P(*s), P(*m), P(*e)], int(24 * S * k), (cloth if who in ("dad", "boss") or street else limb), outl, 4 * S)
             else: _line(d, [P(*s), P(*m), P(*e)], int(10 * S * k), limb)
         for s, m, e in arms:
             x, y = P(*e); r = (20 if style == "salon" else 16) * S * k
@@ -87,6 +96,10 @@ def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=Fals
     # corps
     if style == "salon":
         d.rounded_rectangle([P(-78, 235), P(78, 540)], int(60 * S * k), fill=cloth, outline=outl, width=4 * S)
+        if street:  # sweat à capuche : capuche, poche kangourou, cordons
+            d.chord([P(-70, 200)[0], P(-70, 200)[1], P(70, 300)[0], P(70, 300)[1]], 0, 180, fill=tuple(max(0, c - 22) for c in cloth), outline=outl, width=3 * S)
+            d.rounded_rectangle([P(-50, 420), P(50, 500)], int(18 * S * k), fill=tuple(max(0, c - 14) for c in cloth), outline=outl, width=3 * S)
+            for dx_ in (-14, 14): d.line([P(dx_, 262), P(dx_, 330)], fill=(245, 245, 245), width=int(4 * S))
         if who in ("dad", "boss"):  # chemise + cravate
             d.polygon([P(-22, 240), P(22, 240), P(0, 300)], fill=(240, 240, 240))
             d.polygon([P(-7, 262), P(7, 262), P(10, 380), P(0, 400), P(-10, 380)], fill=(170, 40, 50))
@@ -115,6 +128,9 @@ def person(style, who="kid", pose="idle", face="neutral", mouth=None, blink=Fals
                 d.arc([x0 + 10 * S, y0 - 14 * S, x1 - 10 * S, y0 + 60 * S], 200, 340, fill=(150, 150, 150), width=10 * S)
     elif who in ("woman", "girl"):
         d.chord([x0, y0 - 4 * S, x1, y1 - 60 * S], 180, 360, fill=(60, 40, 34))
+    if who == "street2":  # casquette
+        d.chord([x0 + 4 * S, y0 - 6 * S, x1 - 4 * S, y1 - 70 * S * k], 180, 360, fill=(30, 30, 36), outline=outl, width=3 * S)
+        d.rounded_rectangle([hc[0] - 10 * S, y0 + (y1 - y0) * 0.30 - 6 * S, x1 + 34 * S * k, y0 + (y1 - y0) * 0.30 + 8 * S], int(6 * S), fill=(30, 30, 36))
     # visage
     ex = 30 * S * k; ey = hc[1] - 6 * S * k; er = 9 * S * k
     def eyes(shape="dot"):

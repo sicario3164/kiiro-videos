@@ -407,7 +407,7 @@ class Video:
         self.phr = [words[0]["start"]] + [b["start"] for a, b in zip(words, words[1:]) if b["start"] - a["end"] > 0.28] if words else []
 
     def load_voice(self, voice):
-        if voice: self.env = R.voice_envelope(voice)
+        if voice: self.env = R.voice_envelope_syll(voice)
 
     def amp(self, t):
         if self.env is None: return 0.0

@@ -407,22 +407,6 @@ def voice_envelope(path, fps=FPS):
         out[i] = v
     return np.clip(out, 0, 1.3)
 
-def voice_envelope_syll(path, fps=FPS):
-    """Enveloppe « syllabique » pour la bouche : relief par rapport au creux local (la bouche se referme entre les syllabes)."""
-    from scipy.ndimage import minimum_filter1d, uniform_filter1d
-    raw = subprocess.check_output(["ffmpeg", "-loglevel", "error", "-i", path, "-af", "highpass=f=250,lowpass=f=3500", "-ac", "1", "-ar", "16000", "-f", "s16le", "-"])
-    a = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
-    hop = 16000 // fps; n = len(a) // hop
-    r = np.sqrt((a[:n * hop].reshape(n, hop) ** 2).mean(1))
-    db = 20 * np.log10(r + 1e-5)
-    floor = minimum_filter1d(uniform_filter1d(db, 3), size=max(3, int(0.22 * fps)))
-    x = np.clip((db - floor - 2.5) / 13, 0, 1.3) * (db > np.percentile(db, 30))
-    out = np.zeros_like(x); v = 0.0
-    for i, s_ in enumerate(x):
-        v = s_ if s_ > v else v * 0.25 + s_ * 0.75
-        out[i] = v
-    return np.clip(out, 0, 1.3)
-
 class Actor:
     """Personnage animé : respiration, gestes en parlant, hochements de tête, sourcils, bouche synchronisée."""
     PIV_L, PIV_R, PIV_H = (122, 230), (278, 230), (200, 205)

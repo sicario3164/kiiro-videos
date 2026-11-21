@@ -1,0 +1,81 @@
+{
+ "hook": {"text": "LAVE-VAISSELLE OU *À LA MAIN* ?"},
+ "music_mood": "warm",
+ "thumb": {"title": "LAVE-VAISSELLE OU *À LA MAIN* ?", "scene": 0, "stamp": "UN SEUL A RAISON"},
+ "scenes": [
+  {"at": 0, "headline": "LUI : *À LA MAIN*", "floors": [250, 440], "divider": true, "items": [
+    {"type": "person", "who": "lui", "pose": "hold", "x": 70, "y": 250},
+    {"type": "sink", "on": true, "x": 160, "y": 250},
+    {"type": "person", "who": "elle", "pose": "stand", "x": 70, "y": 440},
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 165, "y": 440, "at": "elle elle lance"},
+    {"type": "label", "text": "40 L ?", "size": 2, "x": 200, "y": 150, "at": "lance le"}]},
+  {"at": "un seul des deux", "headline": "UN SEUL JETTE SON ARGENT", "floors": [250, 440], "divider": true, "items": [
+    {"type": "person", "who": "lui", "pose": "hold", "x": 70, "y": 250},
+    {"type": "sink", "on": true, "x": 160, "y": 250},
+    {"type": "person", "who": "elle", "pose": "stand", "x": 70, "y": 440},
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 165, "y": 440},
+    {"type": "stamp", "text": "LUI ?", "color": "red", "x": 200, "y": 190, "at": "et ce n'est pas"},
+    {"type": "stamp", "text": "ELLE ?", "color": "yellow", "x": 95, "y": 360, "rot": 6, "at": "celui que tu crois"}]},
+  {"at": "lui fait comme", "headline": "COMME SA *GRAND-MÈRE*", "items": [
+    {"type": "portrait", "who": "lui", "label": "LUI", "x": 60, "y": 170},
+    {"type": "portrait", "who": "mere", "label": "SA GRAND-MÈRE", "x": 210, "y": 170},
+    {"type": "dishwasher", "display": "ECO", "on": false, "x": 135, "y": 330, "s": 2},
+    {"type": "bubble", "text": "ÇA GASPILLE !", "x": 135, "y": 210, "at": "une machine"},
+    {"type": "stamp", "text": "EAU + ÉLECTRICITÉ", "color": "red", "x": 135, "y": 400, "at": "de l'eau et"}]},
+  {"at": "elle on lui", "headline": "ELLE : *UNE FORTUNE* ?", "items": [
+    {"type": "portrait", "who": "elle", "label": "ELLE", "x": 210, "y": 150},
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 120, "y": 330, "s": 2},
+    {"type": "coins", "n": 8, "x": 220, "y": 330, "s": 2, "at": "coûter"},
+    {"type": "stamp", "text": "UNE FORTUNE ?", "color": "yellow", "x": 135, "y": 400, "at": "une fortune"}]},
+  {"at": "sauf que regarde", "headline": "REGARDE *SON ROBINET*", "items": [
+    {"type": "sink", "on": true, "x": 135, "y": 330, "s": 2},
+    {"type": "label", "text": "EAU CHAUDE", "size": 1, "x": 135, "y": 360},
+    {"type": "stamp", "text": "SANS ARRÊT", "color": "red", "x": 135, "y": 410, "at": "coule sans"}]},
+  {"at": "à la fin d'une", "headline": "UNE VAISSELLE = *40 LITRES*", "items": [
+    {"type": "sink", "on": true, "x": 80, "y": 300},
+    {"type": "counter", "from": 0, "to": 40, "suffix": " L", "x": 185, "y": 300, "dur": 1.4, "sub": "par vaisselle"},
+    {"type": "drop", "n": 10, "x": 135, "y": 380, "s": 2}]},
+  {"at": "et cette eau", "headline": "IL FAUT *LA CHAUFFER*", "items": [
+    {"type": "heater", "label": "chauffe-eau", "x": 80, "y": 340, "s": 2},
+    {"type": "meter", "from": 0, "to": 2.5, "dec": 1, "suffix": " kWh", "dur": 1.5, "x": 200, "y": 300, "s": 2, "at": "c'est son chauffe-eau"}]},
+  {"at": "son lave-vaisselle à elle", "headline": "ELLE : *12 LITRES*", "items": [
+    {"type": "portrait", "who": "elle", "label": "ELLE", "x": 225, "y": 150},
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 90, "y": 330, "s": 2},
+    {"type": "counter", "from": 40, "to": 12, "suffix": " L", "x": 200, "y": 300, "dur": 1.2, "sub": "par cycle"}]},
+  {"at": "il chauffe juste", "headline": "LA MÊME EAU *RECYCLÉE*", "items": [
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 135, "y": 330, "s": 2},
+    {"type": "loop", "x": 135, "y": 290, "s": 2, "at": "réutilise"},
+    {"type": "stamp", "text": "MÊME EAU", "color": "green", "x": 135, "y": 410, "at": "la même eau"}]},
+  {"at": "résultat", "headline": "*1,15 kWh* CONTRE 2,5", "items": [
+    {"type": "balance", "left": "1,15 kWh", "right": "2,5 kWh", "tilt": 1, "x": 135, "y": 330, "s": 2},
+    {"type": "label", "text": "ELLE", "size": 1, "x": 50, "y": 380},
+    {"type": "label", "text": "LUI", "size": 1, "x": 220, "y": 380}]},
+  {"at": "mais attends", "headline": "MAIS ATTENDS…", "items": [
+    {"type": "question", "x": 135, "y": 320, "s": 2}]},
+  {"at": "cent soixante-six", "headline": "*166* VAISSELLES PAR AN", "items": [
+    {"type": "grid", "n": 166, "cols": 14, "x": 135, "y": 330, "s": 2, "dur": 2.2},
+    {"type": "label", "text": "MOYENNE MESURÉE EN FRANCE", "size": 1, "x": 135, "y": 360, "at": "c'est la moyenne"}]},
+  {"at": "ça fait cinq mille", "headline": "*+5 000 L* POUR LUI", "items": [
+    {"type": "portrait", "who": "lui", "label": "LUI", "x": 45, "y": 150},
+    {"type": "counter", "from": 0, "to": 5000, "prefix": "+", "suffix": " L", "x": 135, "y": 260, "dur": 1.6},
+    {"type": "drop", "n": 14, "x": 135, "y": 300},
+    {"type": "meter", "from": 0, "to": 224, "prefix": "+", "suffix": " kWh", "dur": 1.4, "x": 135, "y": 400, "s": 2, "at": "et plus de deux"}]},
+  {"at": "au total", "headline": "*+60 €* PAR AN DANS L'ÉVIER", "items": [
+    {"type": "receipt", "title": "sur un an", "from": 0, "to": 65, "prefix": "≈", "suffix": "€", "dur": 1.6, "x": 135, "y": 300, "s": 2},
+    {"type": "sink", "on": true, "x": 135, "y": 420},
+    {"type": "coins", "n": 6, "x": 215, "y": 420, "at": "jetés"}]},
+  {"at": "sa seule excuse", "headline": "SA SEULE EXCUSE : *2 BASSINES*", "items": [
+    {"type": "basin", "x": 95, "y": 330, "s": 2},
+    {"type": "basin", "x": 175, "y": 330, "s": 2},
+    {"type": "label", "text": "LAVER", "size": 1, "x": 95, "y": 350},
+    {"type": "label", "text": "RINCER", "size": 1, "x": 175, "y": 350},
+    {"type": "stamp", "text": "JEU ÉGAL", "color": "green", "x": 135, "y": 420, "at": "jeu égal"}]},
+  {"at": "alors toi", "headline": "TEAM LUI OU *TEAM ELLE* ?", "floors": [330], "items": [
+    {"type": "person", "who": "lui", "pose": "shrug", "face": "sad", "x": 70, "y": 330},
+    {"type": "person", "who": "elle", "pose": "point", "face": "happy", "flip": true, "x": 200, "y": 330},
+    {"type": "team", "x": 135, "y": 380},
+    {"type": "verdict", "text": "ELLE A RAISON", "color": "green", "x": 135, "y": 440, "at": "dis-le"}]},
+  {"at": "et regarde bien", "headline": "REGARDE *SON ÉVIER*…", "items": [
+    {"type": "sink", "on": true, "x": 135, "y": 330, "s": 2}]}
+ ]
+}

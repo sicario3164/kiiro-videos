@@ -1,0 +1,723 @@
+{
+ "style": "papier",
+ "banner": [
+  "Maths",
+  "≠",
+  "Fiche de paie"
+ ],
+ "scenes": [
+  {
+   "name": "hook",
+   "at": 0,
+   "bg": "classroom",
+   "chars": [
+    {
+     "who": "kid",
+     "x": 320,
+     "face": "tired"
+    },
+    {
+     "who": "teacher",
+     "x": 800,
+     "pose": "point",
+     "face": "neutral",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "text",
+     "text": "a² + b² = c²",
+     "size": 90,
+     "x": 560,
+     "y": 0.28,
+     "at": "Pythagore"
+    }
+   ]
+  },
+  {
+   "name": "jamais",
+   "at": "mais jamais",
+   "bg": "classroom",
+   "chars": [
+    {
+     "who": "kid",
+     "x": 330,
+     "pose": "shrug",
+     "face": "shock"
+    }
+   ],
+   "props": [
+    {
+     "type": "sign",
+     "text": "FICHE DE PAIE",
+     "x": 760,
+     "y": 0.35,
+     "at": "propre fiche"
+    },
+    {
+     "type": "cross",
+     "x": 760,
+     "y": 0.35,
+     "at": "paie",
+     "impact": true
+    }
+   ]
+  },
+  {
+   "name": "années",
+   "at": "pendant des années",
+   "bg": "classroom",
+   "chars": [
+    {
+     "who": "kid",
+     "x": 330,
+     "face": "tired",
+     "pose": "sad"
+    }
+   ],
+   "props": [
+    {
+     "type": "books",
+     "x": 780,
+     "y": 0.55,
+     "at": "maths"
+    },
+    {
+     "type": "grade",
+     "text": "12/20",
+     "x": 760,
+     "y": 0.27,
+     "at": "contrôles"
+    }
+   ]
+  },
+  {
+   "name": "premier boulot",
+   "at": "et le jour",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 330,
+     "face": "happy"
+    },
+    {
+     "who": "boss",
+     "x": 780,
+     "face": "happy",
+     "flip": true,
+     "pose": "point",
+     "at": "ton patron"
+    }
+   ],
+   "props": [
+    {
+     "type": "bubble",
+     "text": "2 000 €",
+     "x": 760,
+     "y": 0.25,
+     "at": "deux mille euros"
+    }
+   ]
+  },
+  {
+   "name": "rêve",
+   "at": "tu imagines",
+   "bg": "bedroom",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 360,
+     "face": "happy",
+     "pose": "arms_up"
+    }
+   ],
+   "props": [
+    {
+     "type": "thought",
+     "text": "2 000 €",
+     "x": 720,
+     "y": 0.27
+    },
+    {
+     "type": "money_stack",
+     "x": 760,
+     "y": 0.62,
+     "at": "sur ton compte"
+    }
+   ]
+  },
+  {
+   "name": "choc",
+   "at": "sauf qu'à",
+   "bg": "bank",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 330,
+     "face": "shock",
+     "pose": "arms_up",
+     "at": "tu reçois"
+    }
+   ],
+   "props": [
+    {
+     "type": "phone",
+     "x": 760,
+     "y": 0.45
+    },
+    {
+     "type": "text",
+     "text": "1 580 €",
+     "color": [
+      220,
+      40,
+      40
+     ],
+     "size": 120,
+     "x": 760,
+     "y": 0.25,
+     "impact": true,
+     "at": "mille cinq cent"
+    }
+   ]
+  },
+  {
+   "name": "personne",
+   "at": "personne ne",
+   "bg": "street",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 330,
+     "face": "angry",
+     "pose": "hands_hips"
+    }
+   ],
+   "props": [
+    {
+     "type": "sign",
+     "text": "BRUT ≠ NET",
+     "x": 760,
+     "y": 0.32,
+     "at": "brut et le net",
+     "impact": true
+    }
+   ]
+  },
+  {
+   "name": "brut",
+   "at": "le brut c'est",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "pose": "point",
+     "face": "neutral"
+    }
+   ],
+   "props": [
+    {
+     "type": "banknote",
+     "text": "BRUT 2 000 €",
+     "x": 740,
+     "y": 0.28,
+     "scale": 1.8
+    },
+    {
+     "type": "text",
+     "text": "avant cotisations",
+     "size": 56,
+     "x": 740,
+     "y": 0.5,
+     "at": "avant les cotisations"
+    }
+   ]
+  },
+  {
+   "name": "net",
+   "at": "le net c'est",
+   "bg": "bank",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "pose": "point",
+     "face": "happy"
+    }
+   ],
+   "props": [
+    {
+     "type": "banknote",
+     "text": "NET 1 580 €",
+     "x": 740,
+     "y": 0.28,
+     "scale": 1.8
+    },
+    {
+     "type": "phone",
+     "x": 740,
+     "y": 0.62,
+     "at": "sur ton compte"
+    }
+   ]
+  },
+  {
+   "name": "cinquième",
+   "at": "entre les deux",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "face": "sweat"
+    }
+   ],
+   "props": [
+    {
+     "type": "chart_down",
+     "x": 760,
+     "y": 0.4
+    },
+    {
+     "type": "text",
+     "text": "≈ -20 %",
+     "color": [
+      220,
+      40,
+      40
+     ],
+     "size": 130,
+     "x": 760,
+     "y": 0.22,
+     "impact": true,
+     "at": "un cinquième"
+    }
+   ]
+  },
+  {
+   "name": "cotisations",
+   "at": "santé",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 280,
+     "face": "shock",
+     "pose": "shrug"
+    }
+   ],
+   "props": [
+    {
+     "type": "text",
+     "text": "SANTÉ",
+     "size": 62,
+     "x": 760,
+     "y": 0.14,
+     "impact": true
+    },
+    {
+     "type": "text",
+     "text": "RETRAITE",
+     "size": 62,
+     "x": 760,
+     "y": 0.23,
+     "impact": true,
+     "at": "retraite"
+    },
+    {
+     "type": "text",
+     "text": "CHÔMAGE",
+     "size": 62,
+     "x": 760,
+     "y": 0.32,
+     "impact": true,
+     "at": "chômage"
+    },
+    {
+     "type": "text",
+     "text": "CSG + CRDS",
+     "size": 62,
+     "x": 760,
+     "y": 0.41,
+     "impact": true,
+     "at": "CSG"
+    }
+   ]
+  },
+  {
+   "name": "2019",
+   "at": "et ce n'est",
+   "bg": "desk_night",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 330,
+     "face": "tired",
+     "pose": "think"
+    }
+   ],
+   "props": [
+    {
+     "type": "calendar",
+     "text": "2019",
+     "x": 780,
+     "y": 0.27,
+     "impact": true,
+     "at": "dix-neuf"
+    }
+   ]
+  },
+  {
+   "name": "impôt",
+   "at": "l'impôt sur",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "face": "sweat",
+     "pose": "sad"
+    }
+   ],
+   "props": [
+    {
+     "type": "sign",
+     "text": "IMPÔT À LA SOURCE",
+     "x": 740,
+     "y": 0.3,
+     "impact": true,
+     "at": "prélevé"
+    },
+    {
+     "type": "arrow",
+     "x": 740,
+     "y": 0.5,
+     "angle": 270,
+     "color": [
+      220,
+      40,
+      40
+     ],
+     "at": "directement"
+    }
+   ]
+  },
+  {
+   "name": "entretien",
+   "at": "alors en entretien",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "pose": "point",
+     "face": "neutral"
+    },
+    {
+     "who": "boss",
+     "x": 800,
+     "face": "neutral",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "bubble",
+     "text": "Brut ou net ?",
+     "x": 330,
+     "y": 0.24,
+     "at": "brut ou en net"
+    }
+   ]
+  },
+  {
+   "name": "mois an",
+   "at": "et par mois",
+   "bg": "office",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "pose": "think",
+     "face": "neutral"
+    },
+    {
+     "who": "boss",
+     "x": 800,
+     "face": "sweat",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "calendar",
+     "text": "mois ? an ?",
+     "x": 560,
+     "y": 0.25,
+     "impact": true
+    }
+   ]
+  },
+  {
+   "name": "30000",
+   "at": "parce que trente",
+   "bg": "street",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 250,
+     "face": "happy"
+    }
+   ],
+   "props": [
+    {
+     "type": "text",
+     "text": "30 000 € / an",
+     "size": 90,
+     "x": 700,
+     "y": 0.22,
+     "impact": true,
+     "at": "trente mille"
+    },
+    {
+     "type": "text",
+     "text": "2 500 € / mois",
+     "size": 80,
+     "x": 700,
+     "y": 0.42,
+     "at": "deux mille cinq cents"
+    },
+    {
+     "type": "cross",
+     "x": 700,
+     "y": 0.42,
+     "at": "sur ton compte ça",
+     "impact": true
+    }
+   ]
+  },
+  {
+   "name": "1980",
+   "at": "ça fait plutôt",
+   "bg": "bank",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 300,
+     "face": "shock",
+     "pose": "shrug"
+    }
+   ],
+   "props": [
+    {
+     "type": "text",
+     "text": "≈ 1 980 €",
+     "color": [
+      30,
+      150,
+      70
+     ],
+     "size": 130,
+     "x": 720,
+     "y": 0.27,
+     "impact": true,
+     "at": "mille neuf cent"
+    },
+    {
+     "type": "text",
+     "text": "net avant impôt",
+     "size": 56,
+     "x": 720,
+     "y": 0.45,
+     "at": "avant impôt"
+    }
+   ]
+  },
+  {
+   "name": "fiche",
+   "at": "sur ta fiche",
+   "bg": "desk_night",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 280,
+     "face": "neutral",
+     "pose": "think"
+    }
+   ],
+   "props": [
+    {
+     "type": "text",
+     "text": "1. BRUT",
+     "size": 64,
+     "x": 720,
+     "y": 0.13,
+     "at": "le brut le"
+    },
+    {
+     "type": "text",
+     "text": "2. NET À PAYER",
+     "size": 64,
+     "x": 720,
+     "y": 0.23,
+     "at": "net à payer"
+    },
+    {
+     "type": "text",
+     "text": "3. NET IMPOSABLE",
+     "size": 64,
+     "x": 720,
+     "y": 0.33,
+     "at": "net imposable"
+    },
+    {
+     "type": "check",
+     "x": 720,
+     "y": 0.68,
+     "at": "comptent",
+     "impact": true
+    }
+   ]
+  },
+  {
+   "name": "notes",
+   "at": "l'école t'a appris à",
+   "bg": "classroom",
+   "chars": [
+    {
+     "who": "kid",
+     "x": 330,
+     "face": "happy",
+     "pose": "arms_up"
+    }
+   ],
+   "props": [
+    {
+     "type": "grade",
+     "text": "18/20",
+     "x": 760,
+     "y": 0.3,
+     "at": "bonnes notes"
+    }
+   ]
+  },
+  {
+   "name": "vraie vie",
+   "at": "la vraie vie",
+   "bg": "street",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 330,
+     "face": "neutral",
+     "pose": "hands_hips"
+    }
+   ],
+   "props": [
+    {
+     "type": "thought",
+     "text": "€ ?",
+     "x": 720,
+     "y": 0.26
+    },
+    {
+     "type": "money_stack",
+     "x": 760,
+     "y": 0.6,
+     "at": "gagnes vraiment"
+    }
+   ]
+  },
+  {
+   "name": "cta",
+   "at": "et toi ton",
+   "bg": "bedroom",
+   "chars": [
+    {
+     "who": "adult",
+     "x": 320,
+     "pose": "point",
+     "face": "happy"
+    }
+   ],
+   "props": [
+    {
+     "type": "bubble",
+     "text": "Ton 1er salaire ?",
+     "x": 700,
+     "y": 0.25
+    },
+    {
+     "type": "text",
+     "text": "ABONNE-TOI",
+     "color": [
+      220,
+      40,
+      40
+     ],
+     "size": 90,
+     "x": 700,
+     "y": 0.7,
+     "impact": true,
+     "at": "abonne-toi"
+    }
+   ]
+  }
+ ],
+ "thumb": {
+  "style": "papier",
+  "bg": "office",
+  "title1": "2 000 € PROMIS",
+  "title2": "1 580 € REÇUS ?!",
+  "emoji": "😳",
+  "banner": "BRUT ≠ NET",
+  "chars": [
+   {
+    "who": "adult",
+    "pose": "shrug",
+    "face": "shock",
+    "x": 540,
+    "scale": 1.6
+   }
+  ],
+  "bottom": "LA FICHE DE PAIE"
+ },
+ "hook": {
+  "text": "Pythagore oui… *ta fiche de paie* non",
+  "tag": "HORS PROGRAMME · ÉPISODE 1"
+ },
+ "short_cut": [
+  {
+   "from": "pendant des années",
+   "to": "et le jour"
+  },
+  {
+   "from": "et ce n'est pas tout",
+   "to": "alors en entretien"
+  },
+  {
+   "from": "l'école t'a appris à",
+   "to": "et toi ton"
+  }
+ ],
+ "chapters": [
+  {
+   "at": "et le jour",
+   "num": 1,
+   "title": "Ton premier salaire"
+  },
+  {
+   "at": "le brut c'est",
+   "num": 2,
+   "title": "Brut ou net : la vraie différence"
+  },
+  {
+   "at": "sur ta fiche",
+   "num": 3,
+   "title": "Lire ta fiche de paie"
+  }
+ ]
+}

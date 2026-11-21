@@ -1,0 +1,482 @@
+{
+ "title": "Trop-perçu CAF : prescription de deux ans",
+ "perso": "nora",
+ "red_words": [
+  "droit",
+  "pourtant",
+  "jamais",
+  "panique",
+  "prescrits",
+  "fraude",
+  "perdent"
+ ],
+ "yellow_words": [
+  "prescription",
+  "annulés",
+  "remise",
+  "droits",
+  "argent",
+  "commission",
+  "gardent"
+ ],
+ "scenes": [
+  {
+   "name": "hook",
+   "at": "La CAF",
+   "char": {
+    "pose": "point",
+    "x": 250
+   },
+   "poses": [
+    {
+     "at": "pourtant",
+     "pose": "shock"
+    }
+   ],
+   "elements": [
+    {
+     "type": "pill",
+     "text": "LA LOI",
+     "color": "red",
+     "y": 300
+    },
+    {
+     "type": "valuecard",
+     "label": "LA CAF",
+     "sub": "Trop-perçu réclamable",
+     "value": "2 ans",
+     "count": 2,
+     "suffix": " ans",
+     "y": 620
+    },
+    {
+     "type": "hit",
+     "at": "pourtant",
+     "text": "30 MOIS",
+     "y": 1010
+    },
+    {
+     "type": "pill",
+     "at": "tous les jours",
+     "text": "RÉCLAMÉS À INÈS",
+     "color": "navy",
+     "size": 32,
+     "y": 1140
+    }
+   ]
+  },
+  {
+   "name": "histoire",
+   "at": "regarde Inès",
+   "char": {
+    "pose": "idle",
+    "x": 250,
+    "y": 1220
+   },
+   "poses": [
+    {
+     "at": "elle appelle",
+     "pose": "think"
+    },
+    {
+     "at": "panique",
+     "pose": "shock"
+    }
+   ],
+   "elements": [
+    {
+     "type": "street"
+    },
+    {
+     "type": "bigvalue",
+     "at": "deux mille quatre cents",
+     "text": "2 400 €",
+     "color": "red",
+     "y": 300
+    },
+    {
+     "type": "phone",
+     "at": "trop-perçu d'APL",
+     "until": "elle appelle",
+     "title": "Mon compte CAF",
+     "sub": "Trop-perçu d'APL",
+     "rows": [
+      [
+       "APL versée en trop",
+       "-80 €"
+      ],
+      [
+       "APL versée en trop",
+       "-80 €"
+      ],
+      [
+       "APL versée en trop",
+       "-80 €"
+      ],
+      [
+       "APL versée en trop",
+       "-80 €"
+      ],
+      [
+       "APL versée en trop",
+       "-80 €"
+      ],
+      [
+       "APL versée en trop",
+       "-80 €"
+      ],
+      [
+       "…",
+       "…"
+      ]
+     ],
+     "total": "-2 400 €",
+     "total_count": 2400
+    },
+    {
+     "type": "bubble",
+     "at": "elle appelle",
+     "who": "Conseiller CAF",
+     "y": 700,
+     "messages": [
+      {
+       "at": "comme ça",
+       "text": "« C'est comme ça »"
+      },
+      {
+       "at": "directement",
+       "text": "« On se sert sur vos aides »"
+      }
+     ]
+    },
+    {
+     "type": "stamp",
+     "at": "panique",
+     "text": "DETTE",
+     "y": 330
+    }
+   ]
+  },
+  {
+   "name": "révélation",
+   "at": "sauf que",
+   "char": {
+    "pose": "think",
+    "x": 230,
+    "y": 1230
+   },
+   "poses": [
+    {
+     "at": "prescription",
+     "pose": "shock"
+    }
+   ],
+   "elements": [
+    {
+     "type": "bubble",
+     "who": "Ce qu'on ne lui dit pas :",
+     "y": 560,
+     "until": "prescription",
+     "messages": [
+      {
+       "at": "sauf que",
+       "text": "« … »"
+      }
+     ]
+    },
+    {
+     "type": "pill",
+     "at": "la loi",
+     "text": "Code de la sécurité sociale",
+     "color": "navy",
+     "size": 32,
+     "y": 380
+    },
+    {
+     "type": "gauge",
+     "at": "prescription",
+     "label": "PRESCRIPTION 2 ANS"
+    }
+   ]
+  },
+  {
+   "name": "la loi",
+   "at": "sauf fraude",
+   "char": {
+    "pose": "point",
+    "x": 860
+   },
+   "elements": [
+    {
+     "type": "document",
+     "small": "Code de la sécurité sociale",
+     "title": "Article L553-1",
+     "lines": [
+      "L'action en recouvrement",
+      "des prestations indues",
+      "se prescrit par deux ans,",
+      "sauf manœuvre frauduleuse",
+      "ou fausse déclaration."
+     ],
+     "highlight": [
+      {
+       "line": 2,
+       "at": "sauf fraude"
+      },
+      {
+       "line": 3,
+       "at": "ou fausse"
+      }
+     ]
+    },
+    {
+     "type": "pill",
+     "at": "ne peut plus",
+     "text": "PLUS RÉCLAMABLE",
+     "color": "red",
+     "y": 270
+    }
+   ]
+  },
+  {
+   "name": "calcul",
+   "at": "on fait le calcul",
+   "char": {
+    "pose": "think",
+    "x": 860
+   },
+   "elements": [
+    {
+     "type": "calc",
+     "title": "Le calcul",
+     "rows": [
+      {
+       "label": "30 mois × 80 €",
+       "value": "2 400 €",
+       "color": "red",
+       "at": "trente mois"
+      },
+      {
+       "label": "Réclamable : 24 mois",
+       "value": "1 920 €",
+       "at": "vingt-quatre mois"
+      }
+     ],
+     "result": {
+      "label": "Prescrit (6 mois)",
+      "count": 480
+     },
+     "result_at": "six mois sont prescrits"
+    }
+   ]
+  },
+  {
+   "name": "prescrit",
+   "at": "quatre cent quatre-vingts euros que",
+   "char": {
+    "pose": "shock",
+    "x": 540,
+    "y": 1180
+   },
+   "elements": [
+    {
+     "type": "bigvalue",
+     "text": "480 €",
+     "count": 480,
+     "color": "red",
+     "size": 220,
+     "y": 560
+    },
+    {
+     "type": "hit",
+     "at": "ne peut pas",
+     "text": "INTERDIT",
+     "y": 860
+    }
+   ]
+  },
+  {
+   "name": "lettre",
+   "at": "alors Inès écrit",
+   "char": {
+    "pose": "idle",
+    "x": 930,
+    "y": 1300
+   },
+   "elements": [
+    {
+     "type": "letter",
+     "object": "Objet : contestation d'indu",
+     "signature": "Inès",
+     "lines": [
+      {
+       "at": "commission",
+       "text": "À la commission de recours"
+      },
+      {
+       "at": "dans les deux mois",
+       "text": "Madame, Monsieur,"
+      },
+      {
+       "at": "je conteste",
+       "text": "Je conteste cet indu et"
+      },
+      {
+       "at": "j'invoque",
+       "text": "j'invoque la prescription",
+       "highlight": "prescription"
+      },
+      {
+       "at": 51.4,
+       "text": "de deux ans (art. L553-1)."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "résultat",
+   "at": "résultat",
+   "char": {
+    "pose": "shock",
+    "x": 540,
+    "y": 1180
+   },
+   "elements": [
+    {
+     "type": "bigvalue",
+     "at": "quatre cent quatre-vingts euros annulés",
+     "text": "480 €",
+     "count": 480,
+     "color": "yellow",
+     "size": 220,
+     "y": 560
+    },
+    {
+     "type": "pill",
+     "at": "annulés",
+     "text": "ANNULÉS",
+     "color": "green",
+     "size": 44,
+     "y": 760
+    },
+    {
+     "type": "confetti",
+     "at": "annulés"
+    }
+   ]
+  },
+  {
+   "name": "remise",
+   "at": "et pour le reste",
+   "char": {
+    "pose": "point",
+    "x": 230
+   },
+   "elements": [
+    {
+     "type": "infocard",
+     "at": "la loi prévoit",
+     "small": "Situation précaire",
+     "title": "Remise de dette",
+     "pill": "ART. L553-2",
+     "pill_at": "remise de dette"
+    }
+   ]
+  },
+  {
+   "name": "morale",
+   "at": "ceux qui paient",
+   "char": {
+    "pose": "none"
+   },
+   "elements": [
+    {
+     "type": "split",
+     "left": [
+      "Sans rien dire",
+      "tu paies",
+      "tout"
+     ],
+     "right": [
+      "Tes droits",
+      "tu gardes",
+      "ton argent"
+     ],
+     "right_at": "ceux qui connaissent"
+    }
+   ]
+  },
+  {
+   "name": "cta",
+   "at": "et toi tu",
+   "char": {
+    "pose": "point",
+    "x": 230,
+    "y": 1260
+   },
+   "elements": [
+    {
+     "type": "cta",
+     "question": "Tu as reçu cette lettre ?",
+     "button": "ABONNE-TOI",
+     "button_at": "abonne-toi"
+    }
+   ]
+  }
+ ],
+ "thumb": {
+  "title1": "LA CAF TE RÉCLAME",
+  "title2": "TROP ?!",
+  "emoji": "😱",
+  "banner": "LA LOI LIMITE À 2 ANS",
+  "card_a": {
+   "big": "2 ANS",
+   "lines": [
+    "MAXIMUM",
+    "RÉCLAMABLE"
+   ],
+   "sub": "ce que dit la loi"
+  },
+  "card_b": {
+   "big": "30",
+   "lines": [
+    "MOIS",
+    "RÉCLAMÉS"
+   ],
+   "sub": "ce qu'on réclame à Inès"
+  },
+  "bottom": "TROP-PERÇU CAF"
+ },
+ "hook": {
+  "text": "La CAF n'a *PAS LE DROIT* de te réclamer ça",
+  "tag": "DROIT CACHÉ N°2"
+ },
+ "short_cut": [
+  {
+   "from": "elle appelle",
+   "to": "sauf que ce"
+  },
+  {
+   "from": "ceux qui paient",
+   "to": "et toi tu"
+  }
+ ],
+ "chapters": [
+  {
+   "at": "regarde Inès",
+   "num": 1,
+   "title": "L'histoire d'Inès"
+  },
+  {
+   "at": "sauf que",
+   "num": 2,
+   "title": "Ce que la loi dit vraiment"
+  },
+  {
+   "at": "alors Inès écrit",
+   "num": 3,
+   "title": "La lettre qui change tout"
+  }
+ ]
+}

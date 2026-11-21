@@ -72,7 +72,7 @@ def paste(base, img, cx, cy, scale=1.0, alpha=1.0):
     if alpha < 0.99:
         img = img.copy(); img.putalpha(img.getchannel("A").point(lambda v: int(v * alpha)))
     x, y = int(cx - img.width / 2), int(cy - img.height / 2)
-    sx, sy = max(0, -x), max(0, -y); ex, ey = min(img.width, W - x), min(img.height, H - y)
+    sx, sy = max(0, -x), max(0, -y); ex, ey = min(img.width, base.width - x), min(img.height, base.height - y)
     if ex <= sx or ey <= sy: return
     if (sx, sy, ex, ey) != (0, 0, img.width, img.height): img = img.crop((sx, sy, ex, ey))
     base.alpha_composite(img, (x + sx, y + sy))

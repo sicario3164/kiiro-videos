@@ -1,0 +1,37 @@
+{"wide": true, "hook": {"text": "5 IDÉES REÇUES QUI TE COÛTENT *DE L'ARGENT*"}, "music_mood": "warm",
+ "thumb": {"title": "5 IDÉES REÇUES QUI TE COÛTENT *CHER*", "scene": 1, "stamp": "TES PARENTS AVAIENT TORT ?"},
+ "chapters": [{"at": "premier duel", "num": 1, "title": "LAVE-VAISSELLE OU *À LA MAIN* ?"}],
+ "scenes": [
+  {"at": 0, "headline": "5 IDÉES REÇUES *AU TRIBUNAL*", "floors": [258], "items": [
+    {"type": "person", "who": "lui", "pose": "point", "x": 120, "y": 258},
+    {"type": "person", "who": "elle", "pose": "think", "flip": true, "x": 360, "y": 258},
+    {"type": "grid", "n": 5, "cols": 5, "x": 240, "y": 200, "s": 3, "dur": 1.5, "at": "on les passe"},
+    {"type": "receipt", "title": "ce que tu perds", "text": "? €", "x": 240, "y": 258, "at": "combien tu perds"}]},
+  {"at": "lui fait toujours", "headline": "LUI : *À LA MAIN* — ELLE : *LA MACHINE*", "floors": [258], "items": [
+    {"type": "person", "who": "lui", "pose": "hold", "x": 70, "y": 258},
+    {"type": "sink", "on": true, "x": 160, "y": 258},
+    {"type": "person", "who": "elle", "pose": "stand", "x": 300, "y": 258},
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 395, "y": 258, "at": "elle elle lance"},
+    {"type": "stamp", "text": "LUI ?", "color": "red", "x": 160, "y": 150, "at": "un seul des"},
+    {"type": "stamp", "text": "ELLE ?", "color": "yellow", "x": 395, "y": 150, "rot": 6, "at": "jette son argent"}]},
+  {"at": "lui fait comme", "headline": "COMME SA *GRAND-MÈRE*", "items": [
+    {"type": "portrait", "who": "lui", "label": "LUI", "x": 120, "y": 150},
+    {"type": "portrait", "who": "mere", "label": "SA GRAND-MÈRE", "x": 360, "y": 150},
+    {"type": "bubble", "text": "ÇA GASPILLE !", "x": 240, "y": 120, "at": "une machine"},
+    {"type": "dishwasher", "display": "ECO", "on": false, "x": 240, "y": 255, "s": 2}]},
+  {"at": "sauf que regarde", "headline": "UNE VAISSELLE = *40 LITRES*", "items": [
+    {"type": "sink", "on": true, "x": 140, "y": 240, "s": 2},
+    {"type": "counter", "from": 0, "to": 40, "suffix": " L", "x": 350, "y": 200, "dur": 1.4, "sub": "d'eau chaude"},
+    {"type": "drop", "n": 10, "x": 350, "y": 245}]},
+  {"at": "son lave-vaisselle à elle", "headline": "ELLE : *12 LITRES*", "items": [
+    {"type": "dishwasher", "display": "ECO", "on": true, "x": 140, "y": 250, "s": 2},
+    {"type": "counter", "from": 40, "to": 12, "suffix": " L", "x": 350, "y": 200, "dur": 1.2, "sub": "par cycle"}]},
+  {"at": "sur un an", "headline": "*+60 €* PAR AN DANS L'ÉVIER", "items": [
+    {"type": "grid", "n": 166, "cols": 21, "x": 150, "y": 220, "s": 1, "dur": 1.8},
+    {"type": "label", "text": "166 VAISSELLES / AN", "size": 1, "x": 150, "y": 240},
+    {"type": "receipt", "title": "sur un an", "from": 0, "to": 65, "prefix": "≈", "suffix": "€", "dur": 1.6, "x": 360, "y": 250, "s": 2, "at": "ça fait plus"}]},
+  {"at": "verdict", "headline": "VERDICT", "floors": [230], "items": [
+    {"type": "person", "who": "lui", "pose": "shrug", "face": "sad", "x": 140, "y": 230},
+    {"type": "person", "who": "elle", "pose": "point", "face": "happy", "flip": true, "x": 340, "y": 230},
+    {"type": "verdict", "text": "ELLE A RAISON", "color": "green", "x": 240, "y": 268, "at": "elle a raison"}]}
+ ]}

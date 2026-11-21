@@ -8,6 +8,9 @@ Commandes :
   python3 duel_engine.py thumb  scenes.json miniature.jpg
   python3 duel_engine.py demo   scenes.json sortie.mp4 "texte du script"    (sans voix, minutage estimé, musique)
   python3 duel_engine.py check  scenes.json main_words.json
+  Format HORIZONTAL 16:9 (vidéo longue YouTube) : mets "wide": true dans scenes.json (ou ajoute --wide) ;
+    la grille devient 480x270 (x = centre, y = bas, zone utile y 45 à 262 ; divider à y 150, sol à y 258)
+    et "chapters": [{"at": <mots>, "num": 1, "title": "..."}] affiche un carton « DUEL N°1 » + titre.
   python3 duel_engine.py short  scenes.json main_words.json brut.mp4 miniature.jpg short.mp4   (version YouTube Shorts ≤ 59 s)
 
 scenes.json :
@@ -42,6 +45,14 @@ import rw_engine as R
 
 W, H, FPS = 1080, 1920, 30
 LW, LH, K = 270, 480, 4
+L = {"floor": 452, "div": 268, "head_y": 175, "hook_y": 110, "head_size": 64, "hook_size": 118, "head_w": 980, "stamp_y": 1075}
+
+
+def set_wide():
+    """Format horizontal 16:9 (vidéo longue YouTube) : grille 480x270, titres en haut."""
+    global W, H, LW, LH
+    W, H, LW, LH = 1920, 1080, 480, 270
+    L.update({"floor": 258, "div": 150, "head_y": 92, "hook_y": 40, "head_size": 62, "hook_size": 104, "head_w": 1700, "stamp_y": 760})
 BG = (12, 8, 4); A1 = (52, 34, 14); A2 = (110, 72, 26); A3 = (178, 120, 44); A4 = (236, 178, 82); A5 = (255, 226, 150)
 REDC = (232, 64, 52); GRN = (150, 214, 96); YEL = (255, 214, 60); INK = (28, 18, 8)
 MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
@@ -284,7 +295,8 @@ def stamp_img(text, col, rot):
 
 
 # ---------------------------------------------------------------- texte haut (pleine résolution)
-def headline_img(text, size=64, maxw=980):
+def headline_img(text, size=64, maxw=None):
+    maxw = maxw or L["head_w"]
     toks = hook_parse(text)
     f = ImageFont.truetype(F_BLACK, size)
     while sum(f.getlength(w + " ") for w, _ in toks) > maxw * 2.6 and size > 34: size -= 4; f = ImageFont.truetype(F_BLACK, size)
@@ -330,6 +342,10 @@ class Duel:
                 it["_t"] = R.resolve(it["at"], words, 0)[0] if "at" in it else sc["t0"]
                 it["_u"] = R.resolve(it["until"], words, 0)[0] if "until" in it else sc["t1"]
         self.cache = {}; self.events = []
+        self.chapters = []
+        for ch in cfg.get("chapters", []):
+            t0 = R.resolve(ch["at"], words, 0)[0] if isinstance(ch["at"], str) else float(ch["at"])
+            self.chapters.append((t0, ch)); self.events.append((t0, "thud"))
         for sc in self.scenes:
             for it in sc.get("items", []):
                 if it["type"] in ("stamp", "verdict"): self.events.append((it["_t"], "thud"))
@@ -343,6 +359,16 @@ class Duel:
         yy, xx = np.mgrid[0:H, 0:W]; d = np.sqrt(((xx - W / 2) / (W * 0.62)) ** 2 + ((yy - H / 2) / (H * 0.62)) ** 2)
         a = np.clip(a + np.clip(d - 0.55, 0, 1) * 0.9, 0, 0.95)
         im = Image.new("RGBA", (W, H), (0, 0, 0, 0)); im.putalpha(Image.fromarray((a * 255).astype(np.uint8))); return im
+
+    def chapter_img(self, ch):
+        k = ("ch", ch.get("num"), ch.get("title"))
+        if k not in self.cache:
+            im = Image.new("RGBA", (W, H), (6, 4, 2, 225))
+            tag = stamp_img(f"DUEL N°{ch.get('num', '')}" if ch.get("num") else "", YEL, 0); tag = tag.resize((tag.width * 6, tag.height * 6), Image.NEAREST)
+            im.alpha_composite(tag, ((W - tag.width) // 2, H // 2 - tag.height - 30))
+            ti = headline_img(ch.get("title", ""), L["hook_size"]); im.alpha_composite(ti, (0, H // 2 + 10))
+            self.cache[k] = im
+        return self.cache[k]
 
     def hl(self, text, size=64):
         k = ("hl", text, size)
@@ -378,9 +404,9 @@ class Duel:
         lay = Image.new("RGBA", (LW, LH), BG + (255,)); d = ImageDraw.Draw(lay)
         sc = next((s for s in self.scenes if s["t0"] <= t < s["t1"]), self.scenes[-1])
         if sc.get("floor", True):
-            for fy in sc.get("floors", [452]): rect(d, 8, fy, LW - 9, fy, A2)
+            for fy in sc.get("floors", [L["floor"]]): rect(d, 8, fy, LW - 9, fy, A2)
         if sc.get("divider"):
-            for x in range(10, LW - 10, 4): rect(d, x, 268, x + 1, 268, A2)
+            for x in range(10, LW - 10, 4): rect(d, x, L["div"], x + 1, L["div"], A2)
         shake = 0
         for it in sc.get("items", []):
             if not (it["_t"] <= t < it["_u"]): continue
@@ -417,11 +443,15 @@ class Duel:
         if shake: fr = fr.transform(fr.size, Image.AFFINE, (1, 0, random.randint(-shake, shake) * 3, 0, 1, random.randint(-shake, shake) * 3))
         # titre en haut
         if self.cfg.get("hook") and t < 2.0:
-            him = self.hl(self.cfg["hook"]["text"], 118); k = R.clamp((t - 0.05) / 0.25)
-            z = 1 + 0.25 * (1 - R.ease_out(k)); R.paste(fr, him, W // 2, 110 + him.height / 2, z, k)
+            him = self.hl(self.cfg["hook"]["text"], L["hook_size"]); k = R.clamp((t - 0.05) / 0.25)
+            z = 1 + 0.25 * (1 - R.ease_out(k)); R.paste(fr, him, W // 2, L["hook_y"] + him.height / 2, z, k)
         elif sc.get("headline"):
-            him = self.hl(sc["headline"]); a = R.clamp((t - sc["t0"]) / 0.15)
-            R.paste(fr, him, W // 2, 175, 1.0, a)
+            him = self.hl(sc["headline"], L["head_size"]); a = R.clamp((t - sc["t0"]) / 0.15)
+            R.paste(fr, him, W // 2, L["head_y"], 1.0, a)
+        for t0, ch in self.chapters:
+            if t0 <= t < t0 + 1.9:
+                a = R.clamp((t - t0) / 0.15) * R.clamp((t0 + 1.9 - t) / 0.3)
+                R.paste(fr, self.chapter_img(ch), W // 2, H // 2, 1.0 + 0.06 * (1 - R.ease_out(R.clamp((t - t0) / 0.3))), a)
         fr.alpha_composite(self.scan)
         return fr.convert("RGB")
 
@@ -459,8 +489,9 @@ def encode(v, out, voice):
 
 
 def sheet(v, out, n=12):
-    ts = list(np.linspace(0.3, v.dur - 0.5, n)); s = Image.new("RGB", (270 * 6, 480 * ((n + 5) // 6)))
-    for i, x in enumerate(ts): s.paste(v.render(x).resize((270, 480)), ((i % 6) * 270, (i // 6) * 480))
+    tw, th = (270, 480) if H > W else (480, 270); cols = 6 if H > W else 4
+    ts = list(np.linspace(0.3, v.dur - 0.5, n)); s = Image.new("RGB", (tw * cols, th * ((n + cols - 1) // cols)))
+    for i, x in enumerate(ts): s.paste(v.render(x).resize((tw, th)), ((i % cols) * tw, (i // cols) * th))
     s.save(out, quality=85); print("OK", out)
 
 
@@ -469,14 +500,18 @@ def make_thumb(cfg, out):
     sc = dict(cfg["scenes"][th.get("scene", 0)]); sc["at"] = 0; sc["headline"] = ""
     for it in sc.get("items", []): it.pop("at", None); it.pop("until", None)
     v = Duel({"scenes": [sc]}, words, 5.0); fr = v.render(4.0).convert("RGBA")
-    him = headline_img(th.get("title", cfg.get("hook", {}).get("text", "")), 120); R.paste(fr, him, W // 2, 110 + him.height / 2)
+    him = headline_img(th.get("title", cfg.get("hook", {}).get("text", "")), L["hook_size"] + 2); R.paste(fr, him, W // 2, L["hook_y"] + him.height / 2)
     if th.get("stamp"):
-        st = stamp_img(th["stamp"], YEL, -6); st = st.resize((st.width * 5, st.height * 5), Image.NEAREST); R.paste(fr, st, W // 2, 1075)
-    fr.convert("RGB").save(out, quality=92); print("OK", out)
+        st = stamp_img(th["stamp"], YEL, -6); st = st.resize((st.width * 5, st.height * 5), Image.NEAREST); R.paste(fr, st, W // 2, L["stamp_y"])
+    fr = fr.convert("RGB")
+    if W > H: fr = fr.resize((1280, 720), Image.LANCZOS)
+    fr.save(out, quality=92); print("OK", out)
 
 
 def main():
+    if "--wide" in sys.argv: sys.argv.remove("--wide"); set_wide()
     cmd = sys.argv[1]; cfg = json.load(open(sys.argv[2]))
+    if cfg.get("wide"): set_wide()
     if cmd == "thumb": make_thumb(cfg, sys.argv[3]); return
     if cmd == "short":   # short scenes.json main_words.json brut.mp4 miniature.jpg sortie.mp4  (coupe "short_cut", ≤ 59 s)
         R.make_short(cfg, R.load_words(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]); return
